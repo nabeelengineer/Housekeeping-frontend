@@ -143,6 +143,17 @@ export default function Departments() {
             form="dept-form"
             variant="contained"
             disabled={mutation.isLoading}
+            sx={{
+              backgroundColor: "#6a732c",
+              "&:hover": {
+                backgroundColor: "#6a732c",
+              },
+              color: "white",
+              boxShadow: "none",
+              "&:active": {
+                boxShadow: "none",
+              },
+            }}
           >
             Create
           </Button>

@@ -199,6 +199,17 @@ export default function Signup() {
                   variant="contained"
                   disabled={isSubmitting}
                   fullWidth
+                  sx={{
+                    backgroundColor: "#6a732c",
+                    "&:hover": {
+                      backgroundColor: "#6a732c",
+                    },
+                    color: "white",
+                    boxShadow: "none",
+                    "&:active": {
+                      boxShadow: "none",
+                    },
+                  }}
                 >
                   Create account
                 </Button>
