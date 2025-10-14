@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listVehicles, rentVehicle, returnVehicle } from "../../api/endpoints";
+import { listVehicles, rentVehicle, returnVehicle, startOdometer, endOdometer, myActiveRentals } from "../../api/endpoints";
 import {
   Box,
   Typography,
@@ -9,14 +9,21 @@ import {
   Chip,
   ToggleButton,
   ToggleButtonGroup,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
-// ✅ Custom hook to fetch vehicles (show all to keep unavailable rows visible)
+// Custom hook to fetch vehicles (show all to keep unavailable rows visible)
 function useVehicles() {
   return useQuery({
     queryKey: ["vehicles", { status: "all" }],
     queryFn: () => listVehicles({ status: "all" }),
+    staleTime: 15_000,
+    refetchInterval: 30_000,
   });
 }
 
@@ -45,7 +52,7 @@ const isFourWheeler = (v) => {
   return label === "car";
 };
 
-// ✅ Friendly name if backend has no "name"
+// Friendly name if backend has no "name"
 const friendlyName = (v) => {
   if (v?.name) return v.name;
   const type = (v?.type || "").toLowerCase();
@@ -89,6 +96,14 @@ export default function VehicleList() {
   // Track which row is acting to avoid blinking all buttons
   const [rentingId, setRentingId] = useState(null);
   const [returningId, setReturningId] = useState(null);
+  // Odometer dialogs state
+  const [openTake, setOpenTake] = useState(false);
+  const [openReturn, setOpenReturn] = useState(false);
+  const [activeVehicleId, setActiveVehicleId] = useState(null);
+  const [startKm, setStartKm] = useState("");
+  const [startFile, setStartFile] = useState(null);
+  const [endKm, setEndKm] = useState("");
+  const [endFile, setEndFile] = useState(null);
 
   const rent = useMutation({
     mutationFn: (id) => rentVehicle(id),
@@ -108,6 +123,67 @@ export default function VehicleList() {
       qc.invalidateQueries({ queryKey: ["myActiveRentals"] });
     },
   });
+
+  const handleOpenTake = (vehicleId) => {
+    setActiveVehicleId(vehicleId);
+    setStartKm("");
+    setStartFile(null);
+    setOpenTake(true);
+  };
+
+  const handleSubmitTake = async () => {
+    if (!startKm || !startFile) {
+      alert("Please enter start km and choose an image");
+      return;
+    }
+    try {
+      const { log } = await rent.mutateAsync(activeVehicleId);
+      const fd = new FormData();
+      fd.append("start_km", String(startKm));
+      fd.append("start_meter_image", startFile);
+      await startOdometer(log.id, fd);
+      setOpenTake(false);
+      setActiveVehicleId(null);
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      qc.invalidateQueries({ queryKey: ["myActiveRentals"] });
+    } catch (e) {
+      alert(e?.response?.data?.error || e?.message || "Failed to start odometer");
+    }
+  };
+
+  const handleOpenReturn = (vehicleId) => {
+    setActiveVehicleId(vehicleId);
+    setEndKm("");
+    setEndFile(null);
+    setOpenReturn(true);
+  };
+
+  const handleSubmitReturn = async () => {
+    if (!endKm || !endFile) {
+      alert("Please enter end km and choose an image");
+      return;
+    }
+    try {
+      // find the active rental for this vehicle
+      const rentals = await myActiveRentals();
+      const rental = (rentals || []).find((r) => r.vehicle_id === activeVehicleId);
+      if (!rental) {
+        alert("No active rental found");
+        return;
+      }
+      const fd = new FormData();
+      fd.append("end_km", String(endKm));
+      fd.append("end_meter_image", endFile);
+      await endOdometer(rental.id, fd);
+      await returnMut.mutateAsync(activeVehicleId);
+      setOpenReturn(false);
+      setActiveVehicleId(null);
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      qc.invalidateQueries({ queryKey: ["myActiveRentals"] });
+    } catch (e) {
+      alert(e?.response?.data?.error || e?.message || "Failed to end odometer / return");
+    }
+  };
 
   // Always compute rows via hook at top level to avoid conditional hook calls
   const rows = useMemo(() => {
@@ -150,16 +226,13 @@ export default function VehicleList() {
           <DataGrid
             rows={rows}
             columns={[
+              { field: "plate", headerName: "Plate", width: 150 },
               {
-                field: "plate_name",
-                headerName: "Plate - Name",
-                flex: 1.4,
-                minWidth: 240,
-                valueGetter: (_val, row) => {
-                  const name = friendlyName(row);
-                  const plate = row?.plate || "-";
-                  return `${plate} - ${name}`;
-                },
+                field: "name",
+                headerName: "Name",
+                flex: 1.2,
+                minWidth: 200,
+                valueGetter: (_val, row) => friendlyName(row),
               },
               {
                 field: "type",
@@ -199,7 +272,7 @@ export default function VehicleList() {
                         <Button
                           size="small"
                           variant="contained"
-                          onClick={() => rent.mutate(params.row.id)}
+                          onClick={() => handleOpenTake(params.row.id)}
                           disabled={rentingId === params.row.id}
                           sx={{
                             backgroundColor: "#6a732c",
@@ -221,7 +294,7 @@ export default function VehicleList() {
                           size="small"
                           variant="contained"
                           color="secondary"
-                          onClick={() => returnMut.mutate(params.row.id)}
+                          onClick={() => handleOpenReturn(params.row.id)}
                           disabled={returningId === params.row.id}
                           sx={{
                             backgroundColor: "#6a732c",
@@ -263,6 +336,64 @@ export default function VehicleList() {
           />
         </Box>
       )}
+
+      {/* Take dialog */}
+      <Dialog open={openTake} onClose={() => setOpenTake(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Start Odometer</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Start KM"
+              type="number"
+              value={startKm}
+              onChange={(e) => setStartKm(e.target.value)}
+              inputProps={{ min: 0, step: "0.1" }}
+            />
+            <Button component="label" variant="outlined">
+              Upload Meter Image
+              <input type="file" hidden accept="image/*" onChange={(e) => setStartFile(e.target.files?.[0] || null)} />
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {startFile ? startFile.name : "No file chosen"}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenTake(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSubmitTake} sx={{ backgroundColor: "#6a732c" }}>
+            Save & Start
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Return dialog */}
+      <Dialog open={openReturn} onClose={() => setOpenReturn(false)} fullWidth maxWidth="sm">
+        <DialogTitle>End Odometer</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="End KM"
+              type="number"
+              value={endKm}
+              onChange={(e) => setEndKm(e.target.value)}
+              inputProps={{ min: 0, step: "0.1" }}
+            />
+            <Button component="label" variant="outlined">
+              Upload Meter Image
+              <input type="file" hidden accept="image/*" onChange={(e) => setEndFile(e.target.files?.[0] || null)} />
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {endFile ? endFile.name : "No file chosen"}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenReturn(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSubmitReturn} sx={{ backgroundColor: "#6a732c" }}>
+            Save & Return
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

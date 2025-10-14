@@ -37,6 +37,7 @@ import ProductDetail from "./pages/BuySell/ProductDetail.jsx";
 import VehicleList from "./pages/VehicleRental/VehicleList.jsx";
 import BuySellModeration from "./pages/Admin/BuySellModeration.jsx";
 import VehicleRentalLogs from "./pages/Admin/VehicleRentalLogs.jsx";
+import VehiclesAdmin from "./pages/Admin/Vehicles.jsx";
 import ITAssets from "./pages/IT/Assets.jsx";
 import ITAssignments from "./pages/IT/Assignments.jsx";
 import MyAssets from "./pages/Employee/MyAssets.jsx";
@@ -187,8 +188,14 @@ function NavBar() {
                       sx={{
                         textDecoration: "none",
                         color: "common.white",
-                        "&:hover": { bgcolor: "rgba(255,255,255,0.08)", color: "common.white" },
-                        "&:focus, &.Mui-focusVisible": { outline: "none", boxShadow: "none" },
+                        "&:hover": {
+                          bgcolor: "rgba(255,255,255,0.08)",
+                          color: "common.white",
+                        },
+                        "&:focus, &.Mui-focusVisible": {
+                          outline: "none",
+                          boxShadow: "none",
+                        },
                       }}
                       disableRipple
                       disableFocusRipple
@@ -202,8 +209,14 @@ function NavBar() {
                       sx={{
                         textDecoration: "none",
                         color: "common.white",
-                        "&:hover": { bgcolor: "rgba(255,255,255,0.08)", color: "common.white" },
-                        "&:focus, &.Mui-focusVisible": { outline: "none", boxShadow: "none" },
+                        "&:hover": {
+                          bgcolor: "rgba(255,255,255,0.08)",
+                          color: "common.white",
+                        },
+                        "&:focus, &.Mui-focusVisible": {
+                          outline: "none",
+                          boxShadow: "none",
+                        },
                       }}
                       disableRipple
                       disableFocusRipple
@@ -219,8 +232,14 @@ function NavBar() {
                   sx={{
                     textDecoration: "none",
                     color: "common.white",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.08)", color: "common.white" },
-                    "&:focus, &.Mui-focusVisible": { outline: "none", boxShadow: "none" },
+                    "&:hover": {
+                      bgcolor: "rgba(255,255,255,0.08)",
+                      color: "common.white",
+                    },
+                    "&:focus, &.Mui-focusVisible": {
+                      outline: "none",
+                      boxShadow: "none",
+                    },
                   }}
                   disableRipple
                   disableFocusRipple
@@ -418,6 +437,7 @@ export default function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="employees" element={<Employees />} />
         <Route path="market/moderation" element={<BuySellModeration />} />
+        <Route path="vehicles" element={<VehiclesAdmin />} />
         <Route path="vehicle/logs" element={<VehicleRentalLogs />} />
         <Route path="it/logs" element={<ITLogs />} />
       </Route>

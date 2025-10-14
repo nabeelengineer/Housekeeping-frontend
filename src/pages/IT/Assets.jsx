@@ -8,11 +8,6 @@ import {
   Button,
   TextField,
   MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Paper,
   Dialog,
   DialogTitle,
@@ -20,6 +15,7 @@ import {
   DialogActions,
   Divider,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 
 export default function ITAssets() {
   const qc = useQueryClient();
@@ -243,7 +239,9 @@ export default function ITAssets() {
                 label="Purchase Date"
                 InputLabelProps={{ shrink: true }}
                 value={form.purchaseDate}
-                onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, purchaseDate: e.target.value })
+                }
                 size="small"
               />
               <TextField
@@ -251,7 +249,9 @@ export default function ITAssets() {
                 label="Warranty Expiry"
                 InputLabelProps={{ shrink: true }}
                 value={form.warrantyExpiry}
-                onChange={(e) => setForm({ ...form, warrantyExpiry: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, warrantyExpiry: e.target.value })
+                }
                 size="small"
               />
             </Stack>
@@ -348,48 +348,67 @@ export default function ITAssets() {
       {isLoading ? (
         "Loading..."
       ) : (
-        <Paper>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Asset ID</TableCell>
-                <TableCell>Serial</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Brand</TableCell>
-                <TableCell>Model</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(data?.data || []).map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell>{a.assetId}</TableCell>
-                  <TableCell>{a.serialNumber}</TableCell>
-                  <TableCell>{a.assetType}</TableCell>
-                  <TableCell>{a.brand}</TableCell>
-                  <TableCell>{a.model}</TableCell>
-                  <TableCell
-                    sx={{
-                      color:
-                        a.status === "assigned"
-                          ? "error.main"
-                          : a.status === "active"
-                          ? "success.main"
-                          : a.status === "retired"
-                          ? "warning.main"
-                          : "inherit",
-                      fontWeight:
-                        a.status === "assigned" || a.status === "active" || a.status === "retired"
-                          ? 600
-                          : 400,
-                    }}
-                  >
-                    {a.status === "assigned" ? "Assigned" : a.status}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <Paper sx={{ p: 1 }}>
+          <Box sx={{ width: "100%" }}>
+            <DataGrid
+              rows={data?.data || []}
+              getRowId={(row) => row.id}
+              columns={[
+                { field: "assetId", headerName: "Asset ID", width: 150 },
+                { field: "serialNumber", headerName: "Serial", width: 160 },
+                { field: "assetType", headerName: "Type", width: 140 },
+                { field: "brand", headerName: "Brand", width: 160 },
+                { field: "model", headerName: "Model", width: 180 },
+                {
+                  field: "status",
+                  headerName: "Status",
+                  width: 140,
+                  renderCell: (params) => {
+                    const s = String(params.value || "");
+                    const color =
+                      s === "assigned"
+                        ? "error.main"
+                        : s === "active"
+                        ? "success.main"
+                        : s === "retired"
+                        ? "warning.main"
+                        : "inherit";
+                    const label = s === "assigned" ? "Assigned" : s;
+                    return (
+                      <Typography
+                        sx={{
+                          color,
+                          fontWeight: [
+                            "assigned",
+                            "active",
+                            "retired",
+                          ].includes(s)
+                            ? 600
+                            : 400,
+                        }}
+                      >
+                        {label}
+                      </Typography>
+                    );
+                  },
+                },
+              ]}
+              pageSizeOptions={[10, 25, 50]}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              autoHeight
+              disableRowSelectionOnClick
+              density="compact"
+              sx={{
+                mx: 1,
+                border: 0,
+                "& .MuiDataGrid-columnHeader:first-of-type": { pl: 2 },
+                "& .MuiDataGrid-cell:first-of-type": { pl: 2 },
+                "& .MuiDataGrid-columnHeaderTitle": { overflow: "visible" },
+              }}
+            />
+          </Box>
         </Paper>
       )}
     </Box>

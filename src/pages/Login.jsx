@@ -154,6 +154,17 @@ export default function Login() {
                 variant="contained"
                 disabled={isSubmitting}
                 fullWidth
+                sx={{
+                  backgroundColor: "#6a732c",
+                  "&:hover": {
+                    backgroundColor: "#6a732c",
+                  },
+                  color: "white",
+                  boxShadow: "none",
+                  "&:active": {
+                    boxShadow: "none",
+                  },
+                }}
               >
                 Login
               </Button>
@@ -163,10 +174,13 @@ export default function Login() {
                   component={Link}
                   to="/forgot"
                   sx={{
-                    color: '#2563EB',
-                    textDecoration: 'underline',
-                    '&:hover': { color: '#1E40AF', textDecoration: 'underline' },
-                    '&:focus, &.Mui-focusVisible': { outline: 'none' },
+                    color: "#2563EB",
+                    textDecoration: "underline",
+                    "&:hover": {
+                      color: "#1E40AF",
+                      textDecoration: "underline",
+                    },
+                    "&:focus, &.Mui-focusVisible": { outline: "none" },
                   }}
                 >
                   Reset via OTP
@@ -178,10 +192,13 @@ export default function Login() {
                   component={Link}
                   to="/signup"
                   sx={{
-                    color: '#2563EB',
-                    textDecoration: 'underline',
-                    '&:hover': { color: '#1E40AF', textDecoration: 'underline' },
-                    '&:focus, &.Mui-focusVisible': { outline: 'none' },
+                    color: "#2563EB",
+                    textDecoration: "underline",
+                    "&:hover": {
+                      color: "#1E40AF",
+                      textDecoration: "underline",
+                    },
+                    "&:focus, &.Mui-focusVisible": { outline: "none" },
                   }}
                 >
                   Create an account

@@ -45,6 +45,7 @@ export default function AdminLayout() {
     { label: "Categories", to: "/admin/categories" },
     { label: "Employees", to: "/admin/employees" },
     { label: "Market Moderation", to: "/admin/market/moderation" },
+    { label: "Vehicles", to: "/admin/vehicles" },
     { label: "Vehicle Logs", to: "/admin/vehicle/logs" },
     { label: "IT Logs", to: "/admin/it/logs" },
   ];

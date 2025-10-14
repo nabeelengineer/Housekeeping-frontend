@@ -15,11 +15,6 @@ import {
   Button,
   TextField,
   Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -29,6 +24,7 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { useSnackbar } from "notistack";
 
 export default function ITAssignments() {
@@ -653,95 +649,130 @@ export default function ITAssignments() {
         {isLoading ? (
           "Loading..."
         ) : (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Assignment ID</TableCell>
-                <TableCell>Asset ID</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Brand/Model</TableCell>
-                <TableCell>Employee</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Assigned At</TableCell>
-                <TableCell>Returned At</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(data?.data || []).map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell>{a.id}</TableCell>
-                  <TableCell>{a?.asset?.assetId || a.assetId}</TableCell>
-                  <TableCell>{a?.asset?.assetType || "-"}</TableCell>
-                  <TableCell>
-                    {[a?.asset?.brand, a?.asset?.model]
-                      .filter(Boolean)
-                      .join(" ") || "-"}
-                  </TableCell>
-                  <TableCell>
-                    {a?.employee?.name
-                      ? `${a.employee.name} (${a.employee.employee_id})`
-                      : a.employeeId}
-                  </TableCell>
-                  <TableCell>
-                    {String(a?.status || "").toLowerCase() === "retired" ? (
+          <DataGrid
+            rows={(data?.data || [])}
+            getRowId={(row) => row.id}
+            columns={[
+              { field: "id", headerName: "Assignment ID", width: 140 },
+              {
+                field: "assetId",
+                headerName: "Asset ID",
+                width: 160,
+                valueGetter: (_v, row) => row?.asset?.assetId || row.assetId,
+              },
+              {
+                field: "assetType",
+                headerName: "Type",
+                width: 140,
+                valueGetter: (_v, row) => row?.asset?.assetType || "-",
+              },
+              {
+                field: "brandModel",
+                headerName: "Brand/Model",
+                flex: 1.2,
+                minWidth: 200,
+                valueGetter: (_v, row) =>
+                  [row?.asset?.brand, row?.asset?.model].filter(Boolean).join(" ") || "-",
+              },
+              {
+                field: "employee",
+                headerName: "Employee",
+                width: 220,
+                valueGetter: (_v, row) =>
+                  row?.employee?.name
+                    ? `${row.employee.name} (${row.employee.employee_id})`
+                    : row.employeeId,
+              },
+              {
+                field: "status",
+                headerName: "Status",
+                width: 140,
+                renderCell: (params) => {
+                  const s = String(params.value || "").toLowerCase();
+                  if (s === "retired")
+                    return (
                       <Typography color="warning.main" fontWeight={600}>
                         retired
                       </Typography>
-                    ) : (
-                      a.status
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {a.assignedAt
-                      ? new Date(a.assignedAt).toLocaleString()
-                      : ""}
-                  </TableCell>
-                  <TableCell>
-                    {a.returnedAt
-                      ? new Date(a.returnedAt).toLocaleString()
-                      : ""}
-                  </TableCell>
-                  <TableCell>
-                    {a.status === "active" ? (
-                      <Button
-                        size="small"
-                        onClick={() => {
-                          setSelected(a);
-                          setReturnForm({
-                            notes: a.notes || "",
-                            conditionOnReturn: a.conditionOnReturn || "",
-                            retired: false,
-                            retireReason: "",
-                          });
-                          setOpenReturn(true);
-                        }}
-                      >
-                        Return
-                      </Button>
-                    ) : (
-                      <Button
-                        size="small"
-                        onClick={() => {
-                          setSelected(a);
-                          setViewForm({
-                            notes: a.notes || "",
-                            conditionOnReturn: a.conditionOnReturn || "",
-                            retired: !!a.retired,
-                            retireReason: a.retireReason || "",
-                          });
-                          setViewEditMode(false);
-                          setOpenView(true);
-                        }}
-                      >
-                        View
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    );
+                  return params.value;
+                },
+              },
+              {
+                field: "assignedAt",
+                headerName: "Assigned At",
+                width: 200,
+                type: "dateTime",
+                valueGetter: (_v, row) => (row.assignedAt ? new Date(row.assignedAt) : null),
+                valueFormatter: (v) => (v ? new Date(v).toLocaleString() : ""),
+              },
+              {
+                field: "returnedAt",
+                headerName: "Returned At",
+                width: 200,
+                type: "dateTime",
+                valueGetter: (_v, row) => (row.returnedAt ? new Date(row.returnedAt) : null),
+                valueFormatter: (v) => (v ? new Date(v).toLocaleString() : ""),
+              },
+              {
+                field: "actions",
+                headerName: "Action",
+                width: 140,
+                sortable: false,
+                filterable: false,
+                renderCell: (params) =>
+                  params.row.status === "active" ? (
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        const a = params.row;
+                        setSelected(a);
+                        setReturnForm({
+                          notes: a.notes || "",
+                          conditionOnReturn: a.conditionOnReturn || "",
+                          retired: false,
+                          retireReason: "",
+                        });
+                        setOpenReturn(true);
+                      }}
+                    >
+                      Return
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        const a = params.row;
+                        setSelected(a);
+                        setViewForm({
+                          notes: a.notes || "",
+                          conditionOnReturn: a.conditionOnReturn || "",
+                          retired: !!a.retired,
+                          retireReason: a.retireReason || "",
+                        });
+                        setViewEditMode(false);
+                        setOpenView(true);
+                      }}
+                    >
+                      View
+                    </Button>
+                  ),
+              },
+            ]}
+            pageSizeOptions={[10, 25, 50]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10 } },
+              sorting: {
+                sortModel:
+                  filters.status === "returned,retired"
+                    ? [{ field: "returnedAt", sort: "desc" }]
+                    : [{ field: "assignedAt", sort: "desc" }],
+              },
+            }}
+            autoHeight
+            disableRowSelectionOnClick
+            density="compact"
+          />
         )}
       </Paper>
 

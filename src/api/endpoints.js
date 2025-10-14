@@ -57,6 +57,27 @@ export const myActiveRentals = () => api.get('/api/vehicles/my/active').then(r =
 // Admin logs
 export const listVehicleLogs = (params) => api.get('/api/vehicles/admin/logs', { params }).then(r => r.data);
 export const exportVehicleLogsCsv = (params) => api.get('/api/vehicles/admin/logs.csv', { params, responseType: 'blob' }).then(r => r.data);
+// Odometer
+export const startOdometer = (rentalId, formData) =>
+  api
+    .post(`/api/vehicles/rentals/${rentalId}/odometer/start`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then(r => r.data);
+export const endOdometer = (rentalId, formData) =>
+  api
+    .patch(`/api/vehicles/rentals/${rentalId}/odometer/end`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then(r => r.data);
+// Monthly distance (admin)
+export const listMonthlyDistance = (params) => api.get('/api/vehicles/admin/monthly-distance', { params }).then(r => r.data);
+// Admin Vehicles CRUD
+export const adminCreateVehicle = (formData) =>
+  api
+    .post('/api/vehicles/admin/vehicles', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then(r => r.data);
+export const adminUpdateVehicle = (id, formData) =>
+  api
+    .patch(`/api/vehicles/admin/vehicles/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then(r => r.data);
+export const adminDeleteVehicle = (id) => api.delete(`/api/vehicles/admin/vehicles/${id}`).then(r => r.data);
 
 // Notifications
 export const listNotifications = () => api.get('/api/notifications').then(r => r.data);

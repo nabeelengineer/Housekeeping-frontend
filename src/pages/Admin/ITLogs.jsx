@@ -6,23 +6,8 @@ import {
   listAssignments,
   listAssets,
 } from "../../api/endpoints";
-import {
-  Box,
-  Stack,
-  Typography,
-  Paper,
-  Button,
-  Tabs,
-  Tab,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TablePagination,
-  Divider,
-  TextField,
-} from "@mui/material";
+import { Box, Stack, Typography, Paper, Button, Tabs, Tab, Divider, TextField } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 
 export default function ITLogs() {
   const [tab, setTab] = React.useState("ASSIGN_ASSET");
@@ -516,199 +501,168 @@ export default function ITLogs() {
       </Paper>
 
       <Paper>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {(tab === "CREATE_ASSET" || tab === "RETIRE_ASSET") && (
-                <TableCell>Time</TableCell>
-              )}
-              <TableCell>
-                {tab === "CREATE_ASSET" ? "Asset" : "Asset / Action"}
-              </TableCell>
-              {tab === "CREATE_ASSET" && <TableCell>Created Type</TableCell>}
-              {tab !== "CREATE_ASSET" && <TableCell>Employee</TableCell>}
-              {tab === "ASSIGN_ASSET" && <TableCell>Assigned At</TableCell>}
-              {tab === "RETURN_ASSET" && <TableCell>Returned At</TableCell>}
-              {tab === "RETIRE_ASSET" && <TableCell>Retire Reason</TableCell>}
-              <TableCell>
-                {tab === "RETURN_ASSET" || tab === "RETIRE_ASSET" ? "To" : "By"}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(tab === "RETIRE_ASSET" ? retiredRows : logs)
-              .filter((log) => {
-                const m =
-                  tab === "RETIRE_ASSET" ? log || {} : safeMeta(log.metadata);
-                const merged =
-                  tab === "RETIRE_ASSET"
-                    ? retiredByAssetCode.get(
-                        log?.asset?.assetId || log.assetId
-                      ) || {}
-                    : {};
-                const hay = [
-                  new Date(
-                    tab === "RETIRE_ASSET"
-                      ? log.updatedAt ||
-                        merged.returnedAt ||
-                        log.returnedAt ||
-                        log.createdAt
-                      : log.createdAt
-                  ).toLocaleString(),
-                  tab === "RETIRE_ASSET"
-                    ? log?.asset?.assetId || log.assetId
-                    : m.assetCode || m.assetId || log.entityId,
-                  tab === "RETIRE_ASSET"
-                    ? merged?.employee?.employee_id ||
-                      merged.employeeId ||
-                      log?.employee?.employee_id ||
-                      log.employeeId
-                    : m.employeeId,
-                  tab === "RETIRE_ASSET"
-                    ? merged?.employee?.name || log?.employee?.name || ""
-                    : m.employeeName,
-                  tab === "RETIRE_ASSET" ? "" : m.assignedBy,
-                  tab === "RETIRE_ASSET" ? "" : m.returnedBy,
-                  tab === "RETIRE_ASSET" ? "" : m.retiredBy,
-                  tab === "RETIRE_ASSET"
-                    ? log?.asset?.assetType || ""
-                    : m.assetType,
-                  tab === "RETIRE_ASSET" ? log?.asset?.brand || "" : m.brand,
-                  tab === "RETIRE_ASSET" ? log?.asset?.model || "" : m.model,
-                  tab === "RETIRE_ASSET"
-                    ? merged?.retireReason || log?.retireReason || ""
-                    : m.retireReason,
-                ]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase();
-                if (tab === "CREATE_ASSET")
-                  return hay.includes(searchCreated.toLowerCase());
-                if (tab === "ASSIGN_ASSET")
-                  return hay.includes(searchAssigned.toLowerCase());
-                if (tab === "RETURN_ASSET")
-                  return hay.includes(searchReturned.toLowerCase());
-                if (tab === "RETIRE_ASSET") {
-                  return hay.includes(searchRetired.toLowerCase());
-                }
-                return true;
-              })
-              .map((log) => {
-                const m =
-                  tab === "RETIRE_ASSET" ? log || {} : safeMeta(log.metadata);
-                const merged =
-                  tab === "RETIRE_ASSET"
-                    ? retiredByAssetCode.get(
-                        log?.asset?.assetId || log.assetId
-                      ) || {}
-                    : {};
-                const time = new Date(
-                  tab === "RETIRE_ASSET"
-                    ? log.updatedAt ||
-                      merged.returnedAt ||
-                      log.returnedAt ||
-                      log.createdAt
-                    : log.createdAt
-                ).toLocaleString();
-                const asset =
-                  tab === "RETIRE_ASSET"
-                    ? log?.asset?.assetId || log.assetId
-                    : m.assetCode || m.assetId || log.entityId;
-                const emp =
-                  tab === "RETIRE_ASSET"
-                    ? [
-                        merged?.employee?.employee_id ||
-                          merged.employeeId ||
-                          log?.employee?.employee_id ||
-                          log.employeeId,
-                        merged?.employee?.name || log?.employee?.name,
-                      ]
-                        .filter(Boolean)
-                        .join(" • ")
-                    : [m.employeeId, m.employeeName]
-                        .filter(Boolean)
-                        .join(" • ");
-                const assignedAt =
-                  tab === "RETIRE_ASSET"
-                    ? ""
-                    : m.assignedAt
-                    ? new Date(m.assignedAt).toLocaleString()
-                    : "";
-                const returnedAt =
-                  tab === "RETIRE_ASSET"
-                    ? ""
-                    : m.returnedAt
-                    ? new Date(m.returnedAt).toLocaleString()
-                    : "";
-                return (
-                  <TableRow key={`${log.id}-${log.createdAt}`}>
-                    {(tab === "CREATE_ASSET" || tab === "RETIRE_ASSET") && (
-                      <TableCell>{time}</TableCell>
-                    )}
-                    <TableCell>
-                      {tab === "CREATE_ASSET"
-                        ? m.assetId || log.entityId
-                        : tab === "RETIRE_ASSET"
-                        ? `Retired ${asset}`
-                        : renderEntity(log)}
-                    </TableCell>
-                    {tab === "CREATE_ASSET" && (
-                      <TableCell>
-                        {(m.assetType || m.type || "").toString().toUpperCase()}
-                      </TableCell>
-                    )}
-                    {tab !== "CREATE_ASSET" && <TableCell>{emp}</TableCell>}
-                    {tab === "ASSIGN_ASSET" && (
-                      <TableCell>{assignedAt}</TableCell>
-                    )}
-                    {tab === "RETURN_ASSET" && (
-                      <TableCell>{returnedAt}</TableCell>
-                    )}
-                    {tab === "RETIRE_ASSET" && (
-                      <TableCell>
-                        {tab === "RETIRE_ASSET"
-                          ? merged?.retireReason || log?.retireReason || ""
-                          : m.retireReason || ""}
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      {tab === "RETIRE_ASSET"
-                        ? `IT-ADMIN(${merged?.retiredBy || log.userId || ""})`
-                        : `IT-ADMIN(${log.userId})`}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            {!(tab === "RETIRE_ASSET"
-              ? retiredAssetsQuery.isLoading
-              : logsQuery.isLoading) &&
-              (tab === "RETIRE_ASSET"
-                ? retiredRows.length === 0
-                : logs.length === 0) && (
-                <TableRow>
-                  <TableCell
-                    colSpan={tab === "CREATE_ASSET" ? 4 : 5}
-                    align="center"
-                  >
-                    No logs
-                  </TableCell>
-                </TableRow>
-              )}
-          </TableBody>
-        </Table>
+        {(() => {
+          const rawRows = tab === "RETIRE_ASSET" ? retiredRows : logs;
+          const filtered = rawRows.filter((log) => {
+            const m = tab === "RETIRE_ASSET" ? log || {} : safeMeta(log.metadata);
+            const merged =
+              tab === "RETIRE_ASSET"
+                ? retiredByAssetCode.get(log?.asset?.assetId || log.assetId) || {}
+                : {};
+            const hay = [
+              new Date(
+                tab === "RETIRE_ASSET"
+                  ? log.updatedAt || merged.returnedAt || log.returnedAt || log.createdAt
+                  : log.createdAt
+              ).toLocaleString(),
+              tab === "RETIRE_ASSET"
+                ? log?.asset?.assetId || log.assetId
+                : m.assetCode || m.assetId || log.entityId,
+              tab === "RETIRE_ASSET"
+                ? merged?.employee?.employee_id || merged.employeeId || log?.employee?.employee_id || log.employeeId
+                : m.employeeId,
+              tab === "RETIRE_ASSET"
+                ? merged?.employee?.name || log?.employee?.name || ""
+                : m.employeeName,
+              tab === "RETIRE_ASSET" ? "" : m.assignedBy,
+              tab === "RETIRE_ASSET" ? "" : m.returnedBy,
+              tab === "RETIRE_ASSET" ? "" : m.retiredBy,
+              tab === "RETIRE_ASSET" ? log?.asset?.assetType || "" : m.assetType,
+              tab === "RETIRE_ASSET" ? log?.asset?.brand || "" : m.brand,
+              tab === "RETIRE_ASSET" ? log?.asset?.model || "" : m.model,
+              tab === "RETIRE_ASSET" ? merged?.retireReason || log?.retireReason || "" : m.retireReason,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+            if (tab === "CREATE_ASSET") return hay.includes(searchCreated.toLowerCase());
+            if (tab === "ASSIGN_ASSET") return hay.includes(searchAssigned.toLowerCase());
+            if (tab === "RETURN_ASSET") return hay.includes(searchReturned.toLowerCase());
+            if (tab === "RETIRE_ASSET") return hay.includes(searchRetired.toLowerCase());
+            return true;
+          });
+
+          const rows = filtered.map((log) => {
+            const m = tab === "RETIRE_ASSET" ? log || {} : safeMeta(log.metadata);
+            const merged =
+              tab === "RETIRE_ASSET"
+                ? retiredByAssetCode.get(log?.asset?.assetId || log.assetId) || {}
+                : {};
+            const createdAt = new Date(
+              tab === "RETIRE_ASSET"
+                ? log.updatedAt || merged.returnedAt || log.returnedAt || log.createdAt
+                : log.createdAt
+            );
+            return {
+              id: `${log.id}-${log.createdAt}`,
+              createdAt,
+              asset:
+                tab === "CREATE_ASSET"
+                  ? m.assetId || log.entityId
+                  : tab === "RETIRE_ASSET"
+                  ? (log?.asset?.assetId || log.assetId)
+                  : m.assetCode || m.assetId || log.entityId,
+              createdType: (m.assetType || m.type || "").toString().toUpperCase(),
+              employee:
+                tab === "RETIRE_ASSET"
+                  ? [
+                      merged?.employee?.employee_id || merged.employeeId || log?.employee?.employee_id || log.employeeId,
+                      merged?.employee?.name || log?.employee?.name,
+                    ]
+                      .filter(Boolean)
+                      .join(" • ")
+                  : [m.employeeId, m.employeeName].filter(Boolean).join(" • "),
+              assignedAt: m.assignedAt ? new Date(m.assignedAt) : null,
+              returnedAt: m.returnedAt ? new Date(m.returnedAt) : null,
+              retireReason: merged?.retireReason || log?.retireReason || m.retireReason || "",
+              by:
+                tab === "RETIRE_ASSET"
+                  ? `IT-ADMIN(${merged?.retiredBy || log.userId || ""})`
+                  : `IT-ADMIN(${log.userId})`,
+            };
+          });
+
+          const columns = (() => {
+            if (tab === "CREATE_ASSET") {
+              return [
+                {
+                  field: "createdAt",
+                  headerName: "Time",
+                  width: 220,
+                  type: "dateTime",
+                  valueFormatter: (v) => (v ? new Date(v).toLocaleString() : ""),
+                },
+                { field: "asset", headerName: "Asset", flex: 1, minWidth: 180 },
+                { field: "createdType", headerName: "Created Type", width: 160 },
+                { field: "by", headerName: "By", width: 180 },
+              ];
+            }
+            if (tab === "ASSIGN_ASSET") {
+              return [
+                { field: "asset", headerName: "Asset / Action", flex: 1, minWidth: 200 },
+                { field: "employee", headerName: "Employee", width: 240 },
+                {
+                  field: "assignedAt",
+                  headerName: "Assigned At",
+                  width: 220,
+                  type: "dateTime",
+                  valueFormatter: (v) => (v ? new Date(v).toLocaleString() : ""),
+                },
+                { field: "by", headerName: "By", width: 180 },
+                { field: "createdAt", headerName: "Time", width: 220, type: "dateTime" },
+              ];
+            }
+            if (tab === "RETURN_ASSET") {
+              return [
+                { field: "asset", headerName: "Asset / Action", flex: 1, minWidth: 200 },
+                { field: "employee", headerName: "Employee", width: 240 },
+                {
+                  field: "returnedAt",
+                  headerName: "Returned At",
+                  width: 220,
+                  type: "dateTime",
+                  valueFormatter: (v) => (v ? new Date(v).toLocaleString() : ""),
+                },
+                { field: "by", headerName: "To", width: 180 },
+                { field: "createdAt", headerName: "Time", width: 220, type: "dateTime" },
+              ];
+            }
+            // RETIRE_ASSET
+            return [
+              { field: "createdAt", headerName: "Time", width: 220, type: "dateTime" },
+              { field: "asset", headerName: "Asset", flex: 1, minWidth: 180 },
+              { field: "retireReason", headerName: "Retire Reason", flex: 1, minWidth: 200 },
+              { field: "by", headerName: "To", width: 180 },
+            ];
+          })();
+
+          return (
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              getRowId={(row) => row.id}
+              autoHeight
+              pagination
+              paginationMode="server"
+              rowCount={total}
+              pageSizeOptions={[10, 20, 50, 100]}
+              paginationModel={{ page, pageSize: rowsPerPage }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page);
+                setRowsPerPage(model.pageSize);
+              }}
+              initialState={{ sorting: { sortModel: [{ field: "createdAt", sort: "desc" }] } }}
+              disableRowSelectionOnClick
+              density="compact"
+              sx={{
+                mx: 1,
+                border: 0,
+                '& .MuiDataGrid-columnHeaderTitle': { overflow: 'visible' },
+              }}
+            />
+          );
+        })()}
         <Divider />
-        <TablePagination
-          component="div"
-          count={total}
-          page={page}
-          onPageChange={(e, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-        />
       </Paper>
     </Box>
   );
