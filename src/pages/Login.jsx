@@ -11,6 +11,8 @@ import {
   TextField,
   Typography,
   Grid,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { login as loginApi } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
@@ -31,12 +33,13 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const [remember, setRemember] = React.useState(true);
 
   const onSubmit = async (values) => {
     try {
       const res = await loginApi(values);
       if (res?.token) {
-        login(res.token);
+        login(res.token, remember);
         enqueueSnackbar("Logged in", { variant: "success" });
         navigate("/");
       }
@@ -51,7 +54,7 @@ export default function Login() {
     <Box
       sx={{
         position: "fixed",
-        top: { xs: 56, md: 64 },
+        top: 0,
         left: 0,
         right: 0,
         bottom: 0,
@@ -76,8 +79,8 @@ export default function Login() {
             borderRadius: 3,
             boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
             maxHeight: {
-              xs: "calc(100vh - 56px - 32px)",
-              md: "calc(100vh - 64px - 32px)",
+              xs: "calc(100vh - 32px)",
+              md: "calc(100vh - 32px)",
             },
             overflow: "auto",
           }}
@@ -122,8 +125,11 @@ export default function Login() {
 
           {/* Right Login Form */}
           <Box>
-            <Typography variant="h5" gutterBottom>
-              Sign in
+            <Box sx={{ textAlign: "center", mb: 2 }}>
+              <Box component="img" src="/make it easy-02.png" alt="Make IT EEz" sx={{ maxWidth: 220, mx: "auto", display: "block" }} />
+            </Box>
+            <Typography variant="h6" align="center" gutterBottom>
+              USER LOGIN
             </Typography>
             <Stack
               spacing={2}
@@ -149,59 +155,36 @@ export default function Login() {
                 helperText={errors.password?.message}
                 fullWidth
               />
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <FormControlLabel
+                  control={<Checkbox checked={remember} onChange={(e) => setRemember(e.target.checked)} />}
+                  label="Remember"
+                />
+                <Typography variant="body2">
+                  <MLink
+                    component={Link}
+                    to="/forgot"
+                    sx={{ color: "primary.main", textDecoration: "underline" }}
+                  >
+                    Forgot Password?
+                  </MLink>
+                </Typography>
+              </Box>
               <Button
                 type="submit"
                 variant="contained"
                 disabled={isSubmitting}
                 fullWidth
                 sx={{
-                  backgroundColor: "#6a732c",
-                  "&:hover": {
-                    backgroundColor: "#6a732c",
-                  },
-                  color: "white",
                   boxShadow: "none",
-                  "&:active": {
-                    boxShadow: "none",
-                  },
                 }}
               >
                 Login
               </Button>
-              <Typography variant="body2">
-                Forgot password?{" "}
-                <MLink
-                  component={Link}
-                  to="/forgot"
-                  sx={{
-                    color: "#2563EB",
-                    textDecoration: "underline",
-                    "&:hover": {
-                      color: "#1E40AF",
-                      textDecoration: "underline",
-                    },
-                    "&:focus, &.Mui-focusVisible": { outline: "none" },
-                  }}
-                >
-                  Reset via OTP
-                </MLink>
-              </Typography>
-              <Typography variant="body2">
-                New here?{" "}
-                <MLink
-                  component={Link}
-                  to="/signup"
-                  sx={{
-                    color: "#2563EB",
-                    textDecoration: "underline",
-                    "&:hover": {
-                      color: "#1E40AF",
-                      textDecoration: "underline",
-                    },
-                    "&:focus, &.Mui-focusVisible": { outline: "none" },
-                  }}
-                >
-                  Create an account
+              <Typography variant="body2" align="center">
+                Don’t have an account?{" "}
+                <MLink component={Link} to="/signup" sx={{ color: "primary.main", textDecoration: "underline" }}>
+                  Register
                 </MLink>
               </Typography>
             </Stack>

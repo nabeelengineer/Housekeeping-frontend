@@ -199,12 +199,6 @@ export default function AdminDashboard() {
                   );
                 },
               },
-              // {
-              //   field: "priority",
-              //   headerName: "Priority",
-              //   flex: 0.8,
-              //   minWidth: 80,
-              // },
               {
                 field: "status",
                 headerName: "Status",
@@ -261,6 +255,29 @@ export default function AdminDashboard() {
             autoHeight
             disableRowSelectionOnClick
             density="compact"
+            slots={{
+              noRowsOverlay: () => (
+                <Box
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    color: "text.secondary",
+                    p: 4,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    No requests yet
+                  </Typography>
+                  <Typography variant="body2">
+                    When requests are created, they will appear here.
+                  </Typography>
+                </Box>
+              ),
+            }}
           />
         </Box>
       )}

@@ -1,6 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listVehicles, rentVehicle, returnVehicle, startOdometer, endOdometer, myActiveRentals } from "../../api/endpoints";
+import {
+  listVehicles,
+  rentVehicle,
+  returnVehicle,
+  startOdometer,
+  endOdometer,
+  myActiveRentals,
+} from "../../api/endpoints";
 import {
   Box,
   Typography,
@@ -147,7 +154,9 @@ export default function VehicleList() {
       qc.invalidateQueries({ queryKey: ["vehicles"] });
       qc.invalidateQueries({ queryKey: ["myActiveRentals"] });
     } catch (e) {
-      alert(e?.response?.data?.error || e?.message || "Failed to start odometer");
+      alert(
+        e?.response?.data?.error || e?.message || "Failed to start odometer"
+      );
     }
   };
 
@@ -166,7 +175,9 @@ export default function VehicleList() {
     try {
       // find the active rental for this vehicle
       const rentals = await myActiveRentals();
-      const rental = (rentals || []).find((r) => r.vehicle_id === activeVehicleId);
+      const rental = (rentals || []).find(
+        (r) => r.vehicle_id === activeVehicleId
+      );
       if (!rental) {
         alert("No active rental found");
         return;
@@ -181,7 +192,11 @@ export default function VehicleList() {
       qc.invalidateQueries({ queryKey: ["vehicles"] });
       qc.invalidateQueries({ queryKey: ["myActiveRentals"] });
     } catch (e) {
-      alert(e?.response?.data?.error || e?.message || "Failed to end odometer / return");
+      alert(
+        e?.response?.data?.error ||
+          e?.message ||
+          "Failed to end odometer / return"
+      );
     }
   };
 
@@ -275,15 +290,9 @@ export default function VehicleList() {
                           onClick={() => handleOpenTake(params.row.id)}
                           disabled={rentingId === params.row.id}
                           sx={{
-                            backgroundColor: "#6a732c",
-                            "&:hover": {
-                              backgroundColor: "#6a732c",
-                            },
-                            color: "white",
+                            backgroundColor: "primary.main",
+                            color: "common.white",
                             boxShadow: "none",
-                            "&:active": {
-                              boxShadow: "none",
-                            },
                           }}
                         >
                           Taken
@@ -297,15 +306,9 @@ export default function VehicleList() {
                           onClick={() => handleOpenReturn(params.row.id)}
                           disabled={returningId === params.row.id}
                           sx={{
-                            backgroundColor: "#6a732c",
-                            "&:hover": {
-                              backgroundColor: "#6a732c",
-                            },
-                            color: "white",
+                            backgroundColor: "primary.main",
+                            color: "common.white",
                             boxShadow: "none",
-                            "&:active": {
-                              boxShadow: "none",
-                            },
                           }}
                         >
                           Return
@@ -321,6 +324,29 @@ export default function VehicleList() {
             autoHeight
             disableRowSelectionOnClick
             density="compact"
+            slots={{
+              noRowsOverlay: () => (
+                <Box
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    color: "text.secondary",
+                    p: 4,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    No vehicles available
+                  </Typography>
+                  <Typography variant="body2">
+                    Try changing filters above or check back later.
+                  </Typography>
+                </Box>
+              ),
+            }}
             getRowClassName={(params) =>
               String(params.row?.status || "").toLowerCase() === "rented"
                 ? "row-unavailable"
@@ -338,7 +364,12 @@ export default function VehicleList() {
       )}
 
       {/* Take dialog */}
-      <Dialog open={openTake} onClose={() => setOpenTake(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={openTake}
+        onClose={() => setOpenTake(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Start Odometer</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
@@ -351,7 +382,12 @@ export default function VehicleList() {
             />
             <Button component="label" variant="outlined">
               Upload Meter Image
-              <input type="file" hidden accept="image/*" onChange={(e) => setStartFile(e.target.files?.[0] || null)} />
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => setStartFile(e.target.files?.[0] || null)}
+              />
             </Button>
             <Typography variant="caption" color="text.secondary">
               {startFile ? startFile.name : "No file chosen"}
@@ -360,14 +396,23 @@ export default function VehicleList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenTake(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmitTake} sx={{ backgroundColor: "#6a732c" }}>
+          <Button
+            variant="contained"
+            onClick={handleSubmitTake}
+            sx={{ backgroundColor: "primary.main" }}
+          >
             Save & Start
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Return dialog */}
-      <Dialog open={openReturn} onClose={() => setOpenReturn(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={openReturn}
+        onClose={() => setOpenReturn(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>End Odometer</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
@@ -380,7 +425,12 @@ export default function VehicleList() {
             />
             <Button component="label" variant="outlined">
               Upload Meter Image
-              <input type="file" hidden accept="image/*" onChange={(e) => setEndFile(e.target.files?.[0] || null)} />
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => setEndFile(e.target.files?.[0] || null)}
+              />
             </Button>
             <Typography variant="caption" color="text.secondary">
               {endFile ? endFile.name : "No file chosen"}
@@ -389,7 +439,11 @@ export default function VehicleList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenReturn(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmitReturn} sx={{ backgroundColor: "#6a732c" }}>
+          <Button
+            variant="contained"
+            onClick={handleSubmitReturn}
+            sx={{ backgroundColor: "primary.main" }}
+          >
             Save & Return
           </Button>
         </DialogActions>

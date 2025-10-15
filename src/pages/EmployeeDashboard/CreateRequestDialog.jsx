@@ -166,15 +166,9 @@ export default function CreateRequestDialog({ open, onClose, onCreated }) {
           variant="contained"
           disabled={isSubmitting}
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
-            boxShadow: "none",
-            "&:active": {
-              boxShadow: "none",
-            },
+            backgroundColor: 'primary.main',
+            color: 'common.white',
+            boxShadow: 'none',
           }}
         >
           Create

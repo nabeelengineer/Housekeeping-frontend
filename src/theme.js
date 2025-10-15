@@ -4,12 +4,12 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#636B2F',
-      light: '#8a944e',
-      dark: '#474e21',
+      main: '#D32F2F',
+      light: '#EF5350',
+      dark: '#9A0007',
       contrastText: '#ffffff',
     },
-    secondary: { main: '#FF6584' },
+    secondary: { main: '#263238' },
     background: { default: '#F3F4F6', paper: '#FFFFFF' },
     text: { primary: '#111827', secondary: '#6B7280' },
   },
@@ -43,7 +43,7 @@ const theme = createTheme({
           textTransform: 'none',
           borderRadius: 10,
           fontWeight: 600,
-          '&:hover': { backgroundColor: 'transparent', borderColor: 'inherit' },
+          // Use default hover for contained buttons; keep others clean
           '&.Mui-focusVisible, &:focus': { outline: 'none', boxShadow: 'none' },
           '&:active': { boxShadow: 'none', outline: 'none' },
         },

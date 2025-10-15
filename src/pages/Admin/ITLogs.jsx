@@ -659,6 +659,66 @@ export default function ITLogs() {
                 border: 0,
                 '& .MuiDataGrid-columnHeaderTitle': { overflow: 'visible' },
               }}
+              slots={{
+  noRowsOverlay: () => (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        color: 'text.secondary',
+        p: 4,
+      }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+        {tab === 'CREATE_ASSET'
+          ? 'No asset creation logs yet'
+          : tab === 'ASSIGN_ASSET'
+          ? 'No assignment logs yet'
+          : tab === 'RETURN_ASSET'
+          ? 'No return logs yet'
+          : 'No retired assets yet'}
+      </Typography>
+      <Typography variant="body2">
+        Switch tabs or check back later.
+      </Typography>
+    </Box>
+  ),
+}}
+
+components={{
+  NoRowsOverlay: () => (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        color: 'text.secondary',
+        p: 4,
+      }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+        {tab === 'CREATE_ASSET'
+          ? 'No asset creation logs yet'
+          : tab === 'ASSIGN_ASSET'
+          ? 'No assignment logs yet'
+          : tab === 'RETURN_ASSET'
+          ? 'No return logs yet'
+          : 'No retired assets yet'}
+      </Typography>
+      <Typography variant="body2">
+        Switch tabs or check back later.
+      </Typography>
+    </Box>
+  ),
+}}
+
             />
           );
         })()}

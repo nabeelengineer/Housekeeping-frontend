@@ -1,7 +1,16 @@
 import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listVehicleLogs, exportVehicleLogsCsv } from "../../api/endpoints";
-import { Box, Typography, Stack, Button, Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -129,10 +138,18 @@ export default function VehicleRentalLogs() {
           const endUrl = params?.row?.odometer?.end_image_url;
           return (
             <Stack direction="row" spacing={1}>
-              <Button size="small" disabled={!startUrl} onClick={() => startUrl && setPreviewUrl(startUrl)}>
+              <Button
+                size="small"
+                disabled={!startUrl}
+                onClick={() => startUrl && setPreviewUrl(startUrl)}
+              >
                 View Start
               </Button>
-              <Button size="small" disabled={!endUrl} onClick={() => endUrl && setPreviewUrl(endUrl)}>
+              <Button
+                size="small"
+                disabled={!endUrl}
+                onClick={() => endUrl && setPreviewUrl(endUrl)}
+              >
                 View End
               </Button>
             </Stack>
@@ -176,28 +193,64 @@ export default function VehicleRentalLogs() {
           }}
           getRowId={(row) => row.id}
           autoHeight
+          slots={{
+            noRowsOverlay: () => (
+              <Box
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  color: "text.secondary",
+                  p: 4,
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  No vehicle logs yet
+                </Typography>
+                <Typography variant="body2">
+                  When vehicle rentals are recorded, they will appear here.
+                </Typography>
+              </Box>
+            ),
+          }}
         />
       </Box>
-      <Dialog open={!!previewUrl} onClose={() => setPreviewUrl(null)} maxWidth="md" fullWidth>
+      <Dialog
+        open={!!previewUrl}
+        onClose={() => setPreviewUrl(null)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle sx={{ pr: 5 }}>
           Meter Image
           <IconButton
             aria-label="close"
             onClick={() => setPreviewUrl(null)}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
+            sx={{ position: "absolute", right: 8, top: 8 }}
           >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
           {previewUrl && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", p: 1 }}>
               <img
-                src={/^https?:\/\//i.test(previewUrl) ? previewUrl : `${API_BASE}${previewUrl}`}
+                src={
+                  /^https?:\/\//i.test(previewUrl)
+                    ? previewUrl
+                    : `${API_BASE}${previewUrl}`
+                }
                 alt="meter"
-                style={{ maxWidth: '100%', maxHeight: 500 }}
+                style={{ maxWidth: "100%", maxHeight: 500 }}
                 onError={(e) => {
-                  e.currentTarget.replaceWith(document.createTextNode('Image not found. Check server URL and file path.'));
+                  e.currentTarget.replaceWith(
+                    document.createTextNode(
+                      "Image not found. Check server URL and file path."
+                    )
+                  );
                 }}
               />
             </Box>

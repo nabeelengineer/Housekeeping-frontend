@@ -17,6 +17,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 function useFlags(status = "open") {
@@ -58,84 +59,110 @@ export default function BuySellModeration() {
           {loadingOpen ? (
             <Typography>Loading...</Typography>
           ) : (
-            <Grid container spacing={2}>
-              {openFlags.map((f) => (
-                <Grid item xs={12} md={6} key={f.id}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight={700}>
-                        Product #{f.product_id}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 1 }}
-                      >
-                        {f.reason}
-                      </Typography>
-                      <Stack spacing={1}>
-                        <TextField
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                rows={openFlags}
+                getRowId={(row) => row.id}
+                columns={[
+                  { field: "product_id", headerName: "Product", width: 140, valueGetter: (_v, r) => `#${r.product_id}` },
+                  { field: "reason", headerName: "Reason", flex: 1, minWidth: 220 },
+                  {
+                    field: "adminNotes",
+                    headerName: "Notes",
+                    flex: 1,
+                    minWidth: 200,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
+                      <TextField
+                        size="small"
+                        placeholder="Admin notes"
+                        value={noteMap[params.row.id] || ""}
+                        onChange={(e) =>
+                          setNoteMap((m) => ({ ...m, [params.row.id]: e.target.value }))
+                        }
+                        fullWidth
+                        sx={{
+                          '& .MuiInputBase-root': { height: 32 },
+                          '& input::placeholder': { opacity: 0.8 },
+                          backgroundColor: 'background.paper',
+                        }}
+                      />
+                    ),
+                  },
+                  {
+                    field: "actions",
+                    headerName: "Actions",
+                    width: 320,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
+                      <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
+                        <Button
                           size="small"
-                          placeholder="Admin notes"
-                          value={noteMap[f.id] || ""}
-                          onChange={(e) =>
-                            setNoteMap((m) => ({
-                              ...m,
-                              [f.id]: e.target.value,
-                            }))
+                          variant="outlined"
+                          onClick={() =>
+                            resolve.mutate({
+                              id: params.row.id,
+                              action: "received",
+                              adminNotes: noteMap[params.row.id] || "",
+                            })
                           }
-                        />
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() =>
-                              resolve.mutate({
-                                id: f.id,
-                                action: "received",
-                                adminNotes: noteMap[f.id] || "",
-                              })
-                            }
-                          >
-                            Mark Received
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            onClick={() =>
-                              resolve.mutate({
-                                id: f.id,
-                                action: "keep",
-                                adminNotes: noteMap[f.id] || "",
-                              })
-                            }
-                          >
-                            Keep
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() =>
-                              resolve.mutate({
-                                id: f.id,
-                                action: "remove",
-                                adminNotes: noteMap[f.id] || "",
-                              })
-                            }
-                          >
-                            Remove
-                          </Button>
-                        </Stack>
+                          sx={{ textTransform: 'none', boxShadow: 'none' }}
+                        >
+                          Mark Received
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() =>
+                            resolve.mutate({
+                              id: params.row.id,
+                              action: "keep",
+                              adminNotes: noteMap[params.row.id] || "",
+                            })
+                          }
+                          sx={{ textTransform: 'none', boxShadow: 'none', backgroundColor: 'primary.main' }}
+                        >
+                          Keep
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          onClick={() =>
+                            resolve.mutate({
+                              id: params.row.id,
+                              action: "remove",
+                              adminNotes: noteMap[params.row.id] || "",
+                            })
+                          }
+                          sx={{ textTransform: 'none', boxShadow: 'none' }}
+                        >
+                          Remove
+                        </Button>
                       </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-              {!openFlags.length && (
-                <Grid item xs={12}>
-                  <Typography color="text.secondary">No open flags.</Typography>
-                </Grid>
-              )}
-            </Grid>
+                    ),
+                  },
+                ]}
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                autoHeight
+                disableRowSelectionOnClick
+                density="compact"
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: 'grey.50' },
+                  '& .MuiDataGrid-cell': { alignItems: 'center' },
+                }}
+                slots={{
+                  noRowsOverlay: () => (
+                    <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                      <Typography>No open flags.</Typography>
+                    </Box>
+                  ),
+                }}
+              />
+            </Box>
           )}
         </AccordionDetails>
       </Accordion>
@@ -150,73 +177,96 @@ export default function BuySellModeration() {
           {loadingReceived ? (
             <Typography>Loading...</Typography>
           ) : (
-            <Grid container spacing={2}>
-              {(receivedFlags || []).map((f) => (
-                <Grid item xs={12} md={6} key={f.id}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight={700}>
-                        Product #{f.product_id}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 1 }}
-                      >
-                        {f.reason}
-                      </Typography>
-                      <Stack spacing={1}>
-                        <TextField
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                rows={receivedFlags || []}
+                getRowId={(row) => row.id}
+                columns={[
+                  { field: "product_id", headerName: "Product", width: 140, valueGetter: (_v, r) => `#${r.product_id}` },
+                  { field: "reason", headerName: "Reason", flex: 1, minWidth: 220 },
+                  {
+                    field: "adminNotes",
+                    headerName: "Notes",
+                    flex: 1,
+                    minWidth: 200,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
+                      <TextField
+                        size="small"
+                        placeholder="Admin notes"
+                        value={noteMap[params.row.id] || ""}
+                        onChange={(e) =>
+                          setNoteMap((m) => ({ ...m, [params.row.id]: e.target.value }))
+                        }
+                        fullWidth
+                        sx={{
+                          '& .MuiInputBase-root': { height: 32 },
+                          '& input::placeholder': { opacity: 0.8 },
+                          backgroundColor: 'background.paper',
+                        }}
+                      />
+                    ),
+                  },
+                  {
+                    field: "actions",
+                    headerName: "Actions",
+                    width: 240,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
+                      <Stack direction="row" spacing={1}>
+                        <Button
                           size="small"
-                          placeholder="Admin notes"
-                          value={noteMap[f.id] || ""}
-                          onChange={(e) =>
-                            setNoteMap((m) => ({
-                              ...m,
-                              [f.id]: e.target.value,
-                            }))
+                          variant="contained"
+                          onClick={() =>
+                            resolve.mutate({
+                              id: params.row.id,
+                              action: "keep",
+                              adminNotes: noteMap[params.row.id] || "",
+                            })
                           }
-                        />
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            variant="outlined"
-                            onClick={() =>
-                              resolve.mutate({
-                                id: f.id,
-                                action: "keep",
-                                adminNotes: noteMap[f.id] || "",
-                              })
-                            }
-                          >
-                            Keep
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() =>
-                              resolve.mutate({
-                                id: f.id,
-                                action: "remove",
-                                adminNotes: noteMap[f.id] || "",
-                              })
-                            }
-                          >
-                            Remove
-                          </Button>
-                        </Stack>
+                          sx={{ textTransform: 'none', boxShadow: 'none', backgroundColor: 'primary.main' }}
+                        >
+                          Keep
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          onClick={() =>
+                            resolve.mutate({
+                              id: params.row.id,
+                              action: "remove",
+                              adminNotes: noteMap[params.row.id] || "",
+                            })
+                          }
+                          sx={{ textTransform: 'none', boxShadow: 'none' }}
+                        >
+                          Remove
+                        </Button>
                       </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-              {!receivedFlags.length && (
-                <Grid item xs={12}>
-                  <Typography color="text.secondary">
-                    No received flags.
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
+                    ),
+                  },
+                ]}
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                autoHeight
+                disableRowSelectionOnClick
+                density="compact"
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: 'grey.50' },
+                  '& .MuiDataGrid-cell': { alignItems: 'center' },
+                }}
+                slots={{
+                  noRowsOverlay: () => (
+                    <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                      <Typography>No received flags.</Typography>
+                    </Box>
+                  ),
+                }}
+              />
+            </Box>
           )}
         </AccordionDetails>
       </Accordion>
@@ -231,61 +281,81 @@ export default function BuySellModeration() {
           {loadingKept ? (
             <Typography>Loading...</Typography>
           ) : (
-            <Grid container spacing={2}>
-              {(keptFlags || []).map((f) => (
-                <Grid item xs={12} md={6} key={f.id}>
-                  <Card>
-                    <CardContent>
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Typography variant="subtitle1" fontWeight={700}>
-                          Product #{f.product_id}
-                        </Typography>
-                        <Chip label="Kept" color="success" size="small" />
-                      </Stack>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 1 }}
-                      >
-                        {f.reason}
-                      </Typography>
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                rows={keptFlags || []}
+                getRowId={(row) => row.id}
+                columns={[
+                  { field: "product_id", headerName: "Product", width: 140, valueGetter: (_v, r) => `#${r.product_id}` },
+                  { field: "reason", headerName: "Reason", flex: 1, minWidth: 220 },
+                  { field: "status", headerName: "Status", width: 120, renderCell: () => <Chip label="Kept" color="success" size="small" /> },
+                  {
+                    field: "adminNotes",
+                    headerName: "Notes",
+                    flex: 1,
+                    minWidth: 200,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
                       <TextField
                         size="small"
                         placeholder="Admin notes"
-                        value={noteMap[f.id] || ""}
+                        value={noteMap[params.row.id] || ""}
                         onChange={(e) =>
-                          setNoteMap((m) => ({ ...m, [f.id]: e.target.value }))
+                          setNoteMap((m) => ({ ...m, [params.row.id]: e.target.value }))
                         }
+                        fullWidth
+                        sx={{
+                          '& .MuiInputBase-root': { height: 32 },
+                          '& input::placeholder': { opacity: 0.8 },
+                          backgroundColor: 'background.paper',
+                        }}
                       />
-                      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() =>
-                            resolve.mutate({
-                              id: f.id,
-                              action: "remove",
-                              adminNotes: noteMap[f.id] || "",
-                            })
-                          }
-                        >
-                          Remove
-                        </Button>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-              {!keptFlags.length && (
-                <Grid item xs={12}>
-                  <Typography color="text.secondary">No kept flags.</Typography>
-                </Grid>
-              )}
-            </Grid>
+                    ),
+                  },
+                  {
+                    field: "actions",
+                    headerName: "Actions",
+                    width: 160,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: (params) => (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="error"
+                        onClick={() =>
+                          resolve.mutate({
+                            id: params.row.id,
+                            action: "remove",
+                            adminNotes: noteMap[params.row.id] || "",
+                          })
+                        }
+                        sx={{ textTransform: 'none', boxShadow: 'none' }}
+                      >
+                        Remove
+                      </Button>
+                    ),
+                  },
+                ]}
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                autoHeight
+                disableRowSelectionOnClick
+                density="compact"
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: 'grey.50' },
+                  '& .MuiDataGrid-cell': { alignItems: 'center' },
+                }}
+                slots={{
+                  noRowsOverlay: () => (
+                    <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                      <Typography>No kept flags.</Typography>
+                    </Box>
+                  ),
+                }}
+              />
+            </Box>
           )}
         </AccordionDetails>
       </Accordion>
@@ -300,36 +370,33 @@ export default function BuySellModeration() {
           {loadingRemoved ? (
             <Typography>Loading...</Typography>
           ) : (
-            <Grid container spacing={2}>
-              {(removedFlags || []).map((f) => (
-                <Grid item xs={12} md={6} key={f.id}>
-                  <Card>
-                    <CardContent>
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Typography variant="subtitle1" fontWeight={700}>
-                          Product #{f.product_id}
-                        </Typography>
-                        <Chip label="Removed" color="error" size="small" />
-                      </Stack>
-                      <Typography variant="body2" color="text.secondary">
-                        {f.reason}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-              {!removedFlags.length && (
-                <Grid item xs={12}>
-                  <Typography color="text.secondary">
-                    No removed flags.
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                rows={removedFlags || []}
+                getRowId={(row) => row.id}
+                columns={[
+                  { field: "product_id", headerName: "Product", width: 140, valueGetter: (_v, r) => `#${r.product_id}` },
+                  { field: "reason", headerName: "Reason", flex: 1, minWidth: 220 },
+                  { field: "status", headerName: "Status", width: 140, renderCell: () => <Chip label="Removed" color="error" size="small" /> },
+                ]}
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                autoHeight
+                disableRowSelectionOnClick
+                density="compact"
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: 'grey.50' },
+                  '& .MuiDataGrid-cell': { alignItems: 'center' },
+                }}
+                slots={{
+                  noRowsOverlay: () => (
+                    <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                      <Typography>No removed flags.</Typography>
+                    </Box>
+                  ),
+                }}
+              />
+            </Box>
           )}
         </AccordionDetails>
       </Accordion>

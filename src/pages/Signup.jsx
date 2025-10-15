@@ -57,7 +57,7 @@ export default function Signup() {
     <Box
       sx={{
         position: "fixed",
-        top: { xs: 56, md: 64 },
+        top: 0,
         left: 0,
         right: 0,
         bottom: 0,
@@ -81,8 +81,8 @@ export default function Signup() {
               gap: 3,
               mt: 0,
               maxHeight: {
-                xs: "calc(100vh - 56px - 32px)",
-                md: "calc(100vh - 64px - 32px)",
+                xs: "calc(100vh - 32px)",
+                md: "calc(100vh - 32px)",
               },
               overflow: "auto",
             }}
@@ -124,7 +124,10 @@ export default function Signup() {
               </Box>
             </Box>
             <Box>
-              <Typography variant="h5" gutterBottom>
+              <Box sx={{ textAlign: "center", mb: 2 }}>
+                <Box component="img" src="/make it easy-02.png" alt="Make IT EEz" sx={{ maxWidth: 220, mx: "auto", display: "block" }} />
+              </Box>
+              <Typography variant="h6" align="center" gutterBottom>
                 Create account
               </Typography>
               <Stack
@@ -199,17 +202,7 @@ export default function Signup() {
                   variant="contained"
                   disabled={isSubmitting}
                   fullWidth
-                  sx={{
-                    backgroundColor: "#6a732c",
-                    "&:hover": {
-                      backgroundColor: "#6a732c",
-                    },
-                    color: "white",
-                    boxShadow: "none",
-                    "&:active": {
-                      boxShadow: "none",
-                    },
-                  }}
+                  sx={{ boxShadow: "none" }}
                 >
                   Create account
                 </Button>

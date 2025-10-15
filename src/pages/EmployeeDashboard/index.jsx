@@ -157,24 +157,10 @@ export default function EmployeeDashboard() {
           variant="contained"
           onClick={() => setOpen(true)}
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
-            "&:active": {
-              boxShadow: "none",
-            },
+            backgroundColor: 'primary.main',
+            color: 'common.white',
+            boxShadow: 'none',
             mb: 2,
-            border: "none",
-            outline: "none",
-            boxShadow: "none",
-            "&:focus": {
-              outline: "none",
-            },
-            "&:focus-visible": {
-              outline: "none",
-            },
           }}
         >
           Create Request
@@ -250,6 +236,20 @@ export default function EmployeeDashboard() {
             ]}
             pageSizeOptions={[5, 10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+            slots={{
+              noRowsOverlay: () => (
+                <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {role === 'staff' ? 'Nothing assigned yet' : 'No requests found'}
+                  </Typography>
+                  <Typography variant="body2">
+                    {role === 'staff'
+                      ? 'When a request is assigned to you, it will appear here.'
+                      : 'Create a request using the button above to get started.'}
+                  </Typography>
+                </Box>
+              ),
+            }}
           />
         </Box>
       )}

@@ -257,15 +257,9 @@ function VehicleForm({ open, onClose, initial }) {
           onClick={handleSubmit}
           variant="contained"
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
+            backgroundColor: "primary.main",
+            color: "common.white",
             boxShadow: "none",
-            "&:active": {
-              boxShadow: "none",
-            },
           }}
         >
           {isEdit ? "Update" : "Create"}
@@ -329,15 +323,9 @@ export default function VehiclesAdmin() {
             setOpen(true);
           }}
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
-            boxShadow: "none",
-            "&:active": {
-              boxShadow: "none",
-            },
+            backgroundColor: "primary.main",
+            color: "common.white",
+            mr: 3,
           }}
         >
           Add Vehicle
@@ -412,6 +400,29 @@ export default function VehiclesAdmin() {
         autoHeight
         disableRowSelectionOnClick
         density="compact"
+        slots={{
+          noRowsOverlay: () => (
+            <Box
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                color: "text.secondary",
+                p: 4,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                No vehicles yet
+              </Typography>
+              <Typography variant="body2">
+                Add a vehicle using the button above to see it listed here.
+              </Typography>
+            </Box>
+          ),
+        }}
       />
 
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>

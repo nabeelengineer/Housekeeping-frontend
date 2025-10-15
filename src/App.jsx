@@ -60,12 +60,13 @@ function NavBar() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
   const { pathname } = useLocation();
-  if (pathname.startsWith("/admin")) return null;
+  const authPaths = ["/login", "/signup", "/forgot", "/forgot/verify"];
+  if (pathname.startsWith("/admin") || authPaths.includes(pathname)) return null;
   return (
     <AppBar position="static" square sx={{ borderRadius: 0 }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Housekeeping
+          Make IT EEz
         </Typography>
 
         {!token ? (
@@ -451,7 +452,7 @@ export default function App() {
       {isAdmin ? (
         <Box sx={{ mt: 0 }}>{routes}</Box>
       ) : useFullWidth ? (
-        <Box sx={{ mt: 3, borderRadius: 0 }}>{routes}</Box>
+        <Box sx={{ mt: 0, borderRadius: 0 }}>{routes}</Box>
       ) : (
         <Container sx={{ mt: 3 }}>{routes}</Container>
       )}

@@ -97,15 +97,9 @@ export default function Categories() {
           variant="contained"
           onClick={() => setOpen(true)}
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
-            boxShadow: "none",
-            "&:active": {
-              boxShadow: "none",
-            },
+            backgroundColor: 'primary.main',
+            color: 'common.white',
+            boxShadow: 'none',
             mr: 3,
           }}
         >
@@ -170,15 +164,9 @@ export default function Categories() {
             variant="contained"
             disabled={mutation.isLoading}
             sx={{
-              backgroundColor: "#6a732c",
-              "&:hover": {
-                backgroundColor: "#6a732c",
-              },
-              color: "white",
-              boxShadow: "none",
-              "&:active": {
-                boxShadow: "none",
-              },
+              backgroundColor: 'primary.main',
+              color: 'common.white',
+              boxShadow: 'none',
             }}
           >
             Create

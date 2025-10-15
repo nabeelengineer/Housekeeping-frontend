@@ -162,15 +162,9 @@ export default function Employees() {
           variant="contained"
           onClick={() => setOpen(true)}
           sx={{
-            backgroundColor: "#6a732c",
-            "&:hover": {
-              backgroundColor: "#6a732c",
-            },
-            color: "white",
-            boxShadow: "none",
-            "&:active": {
-              boxShadow: "none",
-            },
+            backgroundColor: 'primary.main',
+            color: 'common.white',
+            boxShadow: 'none',
             mr: 3,
           }}
         >
@@ -262,15 +256,9 @@ export default function Employees() {
             variant="contained"
             disabled={createMut.isLoading}
             sx={{
-              backgroundColor: "#6a732c",
-              "&:hover": {
-                backgroundColor: "#6a732c",
-              },
-              color: "white",
-              boxShadow: "none",
-              "&:active": {
-                boxShadow: "none",
-              },
+              backgroundColor: 'primary.main',
+              color: 'common.white',
+              boxShadow: 'none',
             }}
           >
             Create

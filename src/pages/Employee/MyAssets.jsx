@@ -10,7 +10,16 @@ export default function MyAssets() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>My Assets</Typography>
-      {isLoading ? 'Loading...' : (
+      {isLoading ? 'Loading...' : rows.length === 0 ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+            No assets assigned yet
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            When an asset is assigned to you, it will appear here.
+          </Typography>
+        </Paper>
+      ) : (
         <Paper>
           <Table size="small">
             <TableHead>

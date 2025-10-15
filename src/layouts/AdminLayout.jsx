@@ -25,7 +25,7 @@ import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "../api/endpoints";
-import Logo from "../assets/logo.png";
+
 
 const drawerWidth = 260;
 
@@ -91,26 +91,23 @@ export default function AdminLayout() {
       >
         <Box
           component="img"
-          src={Logo}
-          alt="HK"
+          src="/make it easy White-01.png"
+          // alt="Make IT EEz Logo"
           sx={{
-            width: 80,
-            height: 80,
-            objectFit: "cover",
-            borderRadius: 1,
-            mt: 4,
+            width: 140,
+            height: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+            mt: 5,
           }}
         />
-        <Typography variant="h5" sx={{ fontWeight: 800, mt: 3 }}>
-          Housekeeping
-        </Typography>
       </Toolbar>
       <List
         sx={{
           flexGrow: 1,
           flexDirection: "column",
           gap: 0.5,
-          mt: 3,
+          mt: 1,
         }}
       >
         {nav.map((item) => (
@@ -163,7 +160,7 @@ export default function AdminLayout() {
               boxSizing: "border-box",
               width: drawerWidth,
               pl: 2,
-              backgroundColor: "#636B2F",
+              backgroundColor: "#D32F2F",
               color: "#fff",
               borderRadius: 0,
             },
@@ -180,7 +177,7 @@ export default function AdminLayout() {
               boxSizing: "border-box",
               width: drawerWidth,
               pl: 2,
-              backgroundColor: "#636B2F",
+              backgroundColor: "#D32F2F",
               color: "#fff",
               borderRadius: 0,
             },

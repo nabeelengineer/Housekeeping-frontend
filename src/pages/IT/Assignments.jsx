@@ -402,15 +402,9 @@ export default function ITAssignments() {
               setOpen(true);
             }}
             sx={{
-              backgroundColor: "#6a732c",
-              "&:hover": {
-                backgroundColor: "#6a732c",
-              },
-              color: "white",
-              boxShadow: "none",
-              "&:active": {
-                boxShadow: "none",
-              },
+              backgroundColor: 'primary.main',
+              color: 'common.white',
+              boxShadow: 'none',
             }}
           >
             Assign +
@@ -488,15 +482,9 @@ export default function ITAssignments() {
               !assignForm.employeeId
             }
             sx={{
-              backgroundColor: "#6a732c",
-              "&:hover": {
-                backgroundColor: "#6a732c",
-              },
-              color: "white",
-              boxShadow: "none",
-              "&:active": {
-                boxShadow: "none",
-              },
+              backgroundColor: 'primary.main',
+              color: 'common.white',
+              boxShadow: 'none',
             }}
           >
             Assign
@@ -518,24 +506,16 @@ export default function ITAssignments() {
               sx={{
                 ...(filters.status === "active"
                   ? {
-                      backgroundColor: "white",
-                      color: "#6a732c",
-                      border: "1px solid #6a732c",
-                      "&:hover": {
-                        backgroundColor: "white",
-                        color: "#6a732c",
-                        border: "1px solid #6a732c",
-                      },
+                      backgroundColor: 'common.white',
+                      color: 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
                     }
                   : {
-                      backgroundColor: "#6a732c",
-                      color: "white",
-                      "&:hover": {
-                        backgroundColor: "#6a732c",
-                      },
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                     }),
                 boxShadow: "none",
-                "&:active": { boxShadow: "none" },
               }}
             >
               Active
@@ -551,27 +531,19 @@ export default function ITAssignments() {
               sx={{
                 ...(filters.status === "returned,retired"
                   ? {
-                      backgroundColor: "white",
-                      color: "#6a732c",
-                      border: "1px solid #6a732c",
-                      "&:hover": {
-                        backgroundColor: "white",
-                        color: "#6a732c",
-                        border: "1px solid #6a732c",
-                      },
+                      backgroundColor: 'common.white',
+                      color: 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
                     }
                   : {
-                      backgroundColor: "#6a732c",
-                      color: "white",
-                      "&:hover": {
-                        backgroundColor: "#6a732c",
-                      },
+                      backgroundColor: 'primary.main',
+                      color: 'common.white',
                     }),
                 boxShadow: "none",
-                "&:active": { boxShadow: "none" },
               }}
             >
-              History
+              Returned/Retired
             </Button>
           </Stack>
 
@@ -772,6 +744,34 @@ export default function ITAssignments() {
             autoHeight
             disableRowSelectionOnClick
             density="compact"
+            slots={{
+              noRowsOverlay: () => (
+                <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {filters.status === 'returned,retired' ? 'No history yet' : 'Nothing assigned yet'}
+                  </Typography>
+                  <Typography variant="body2">
+                    {filters.status === 'returned,retired'
+                      ? 'Returned/retired assignments will appear here.'
+                      : 'When assets are assigned, they will appear here.'}
+                  </Typography>
+                </Box>
+              ),
+            }}
+            components={{
+              NoRowsOverlay: () => (
+                <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {filters.status === 'returned,retired' ? 'No history yet' : 'Nothing assigned yet'}
+                  </Typography>
+                  <Typography variant="body2">
+                    {filters.status === 'returned,retired'
+                      ? 'Returned/retired assignments will appear here.'
+                      : 'When assets are assigned, they will appear here.'}
+                  </Typography>
+                </Box>
+              ),
+            }}
           />
         )}
       </Paper>
@@ -874,15 +874,9 @@ export default function ITAssignments() {
               (returnForm.retired && !(returnForm.retireReason || "").trim())
             }
             sx={{
-              backgroundColor: "#6a732c",
-              "&:hover": {
-                backgroundColor: "#6a732c",
-              },
-              color: "white",
-              boxShadow: "none",
-              "&:active": {
-                boxShadow: "none",
-              },
+              backgroundColor: 'primary.main',
+              color: 'common.white',
+              boxShadow: 'none',
             }}
           >
             Submit & Return
