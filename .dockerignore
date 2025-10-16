@@ -12,5 +12,5 @@ pnpm-debug.log*
 .idea
 *.local
 Dockerfile
-nginx.conf
+
 docker-compose*
