@@ -160,11 +160,11 @@ export default function Departments() {
             minHeight: 0,
           }}
         >
-          <Box sx={{ flexGrow: 1, minHeight: 0, width: "100%" }}>
+          <Box sx={{ flexGrow: 1, minHeight: 0, width: "100%", overflowX: 'auto' }}>
             <DataGrid
               rows={data.map((d) => ({ id: d.dept_id, ...d }))}
               columns={[
-                { field: "dept_id", headerName: "Dept ID", width: 140 },
+                { field: "dept_id", headerName: "Dept ID", width: 120 },
                 {
                   field: "dept_name",
                   headerName: "Name",
@@ -202,12 +202,26 @@ export default function Departments() {
                 },
               ]}
               pageSizeOptions={[5, 10, 25]}
-              initialState={{
-                pagination: { paginationModel: { pageSize: 10 } },
-              }}
-              sx={{ height: "100%" }}
+              initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+              autoHeight
               disableRowSelectionOnClick
               density="compact"
+              columnVisibilityModel={{}}
+              sx={{
+                "& .MuiDataGrid-cell, & .MuiDataGrid-columnHeader": {
+                  py: { xs: 0.5, sm: 1 },
+                  px: { xs: 0.5, sm: 1 },
+                  fontSize: { xs: 12, sm: 13 },
+                },
+                "& .MuiDataGrid-columnHeaders": {
+                  minHeight: { xs: 40, sm: 48 },
+                  lineHeight: { xs: "40px", sm: "48px" },
+                },
+                "& .MuiDataGrid-row": {
+                  maxHeight: { xs: 44, sm: 52 },
+                  minHeight: { xs: 44, sm: 52 },
+                },
+              }}
             />
           </Box>
         </Paper>

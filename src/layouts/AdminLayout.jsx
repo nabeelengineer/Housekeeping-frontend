@@ -21,6 +21,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -84,23 +85,34 @@ export default function AdminLayout() {
         sx={{
           px: 2,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
           alignItems: "center",
+          justifyContent: "space-between",
           pb: 1,
+          position: 'relative',
         }}
       >
         <Box
           component="img"
           src="/make it easy White-01.png"
-          // alt="Make IT EEz Logo"
-          sx={{
-            width: 140,
-            height: 'auto',
-            objectFit: 'contain',
-            display: 'block',
-            mt: 5,
-          }}
+          sx={{ width: 140, height: 'auto', objectFit: 'contain', display: 'block', mt: 2 }}
         />
+        {/* Close inside drawer on mobile */}
+        <IconButton
+          aria-label="close sidebar"
+          color="inherit"
+          onClick={() => setMobileOpen(false)}
+          sx={{
+            display: { xs: 'inline-flex', sm: 'none' },
+            position: 'absolute',
+            top: 25,
+            right: -40,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
       </Toolbar>
       <List
         sx={{
@@ -137,6 +149,7 @@ export default function AdminLayout() {
             <ListItemText primary={item.label} />
           </ListItemButton>
         ))}
+        {/* Logout removed from drawer */}
       </List>
     </Box>
   );
@@ -217,22 +230,28 @@ export default function AdminLayout() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1.5,
+                gap: 1,
               }}
             >
-              <Typography variant="h4" fontWeight={800}>
+              {/* Left hamburger on mobile */}
+              <IconButton
+                color="inherit"
+                onClick={() => setMobileOpen(!mobileOpen)}
+                sx={{ display: { xs: "inline-flex", sm: "none" } }}
+                aria-label="open sidebar"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                component="h1"
+                fontWeight={800}
+                sx={{ fontSize: { xs: 22, sm: 28, md: 32 } }}
+              >
                 {pageTitle}
               </Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton
-                color="inherit"
-                onClick={() => setMobileOpen(!mobileOpen)}
-                sx={{ display: { sm: "none" } }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Box>
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Button
                   variant="h5"
                   color="text.secondary"
@@ -255,6 +274,7 @@ export default function AdminLayout() {
                 >
                   Hi, {displayName}
                 </Button>
+                {/* Same menu is used for mobile trigger below */}
                 <Menu
                   id="admin-profile-menu"
                   anchorEl={anchorEl}
@@ -314,6 +334,14 @@ export default function AdminLayout() {
                     Logout
                   </MenuItem>
                 </Menu>
+              </Box>
+              {/* Compact account trigger on xs */}
+              <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                <IconButton aria-label="account menu" onClick={handleMenuOpen}>
+                  <Avatar sx={{ width: 28, height: 28 }}>
+                    {(displayName || 'U').slice(0,1)}
+                  </Avatar>
+                </IconButton>
               </Box>
             </Box>
           </Box>

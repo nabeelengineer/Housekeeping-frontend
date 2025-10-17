@@ -14,6 +14,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { useTheme, useMediaQuery } from "@mui/material";
 import CreateRequestDialog from "./CreateRequestDialog";
 import { useAuth } from "../../auth/AuthContext";
 import { useSnackbar } from "notistack";
@@ -91,6 +92,8 @@ export default function EmployeeDashboard() {
     console.debug("EmployeeDashboard sample row:", mine[0]);
   }
 
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Box>
       <Grid container spacing={3} mb={3} justifyContent="center">
@@ -170,7 +173,7 @@ export default function EmployeeDashboard() {
       {isLoading ? (
         <Typography>Loading...</Typography>
       ) : (
-        <Box sx={{ height: 520, width: "100%" }}>
+        <Box sx={{ width: "100%", overflowX: "auto" }}>
           <DataGrid
             rows={rows}
             columns={[
@@ -178,19 +181,19 @@ export default function EmployeeDashboard() {
                 field: "request_id",
                 headerName: "Request ID",
                 flex: 1,
-                minWidth: 150,
+                minWidth: 120,
               },
               ...(role === "staff"
-                ? [{ field: "employee_id", headerName: "Employee", width: 140 }]
+                ? [{ field: "employee_id", headerName: "Employee", width: 120 }]
                 : []),
-              { field: "floor", headerName: "Floor", width: 140 },
-              { field: "unit", headerName: "Unit", width: 120 },
-              { field: "type", headerName: "Type", width: 140 },
+              { field: "floor", headerName: "Floor", width: 110 },
+              { field: "unit", headerName: "Unit", width: 100 },
+              { field: "type", headerName: "Type", width: 120 },
               {
                 field: "description",
                 headerName: "About",
                 flex: 1.6,
-                minWidth: 220,
+                minWidth: 200,
                 renderCell: (params) => {
                   const text = params.value || "-";
                   return (
@@ -221,21 +224,43 @@ export default function EmployeeDashboard() {
               },
               // Priority removed as per requirement
               // { field: "priority", headerName: "Priority", width: 140 },
-              { field: "status", headerName: "Status", width: 160 },
+              { field: "status", headerName: "Status", width: 140 },
               {
                 field: "assigned_display",
                 headerName: "Assigned To",
-                width: 160,
+                width: 140,
               },
               {
                 field: "closed_display",
                 headerName: "Closed Date",
                 flex: 1,
-                minWidth: 180,
+                minWidth: 160,
               },
             ]}
             pageSizeOptions={[5, 10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+            autoHeight
+            columnVisibilityModel={{
+              floor: !isXs,
+              unit: !isXs,
+              assigned_display: !isXs,
+              closed_display: !isXs,
+            }}
+            sx={{
+              "& .MuiDataGrid-cell, & .MuiDataGrid-columnHeader": {
+                py: { xs: 0.5, sm: 1 },
+                px: { xs: 0.5, sm: 1 },
+                fontSize: { xs: 12, sm: 13 },
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                minHeight: { xs: 40, sm: 48 },
+                lineHeight: { xs: "40px", sm: "48px" },
+              },
+              "& .MuiDataGrid-row": {
+                maxHeight: { xs: 44, sm: 52 },
+                minHeight: { xs: 44, sm: 52 },
+              },
+            }}
             slots={{
               noRowsOverlay: () => (
                 <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>

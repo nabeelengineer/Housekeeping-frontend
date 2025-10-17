@@ -332,6 +332,7 @@ export default function VehiclesAdmin() {
         </Button>
       </Stack>
 
+      <Box sx={{ width: '100%', overflowX: 'auto' }}>
       <DataGrid
         rows={rows}
         columns={[
@@ -400,6 +401,21 @@ export default function VehiclesAdmin() {
         autoHeight
         disableRowSelectionOnClick
         density="compact"
+        sx={{
+          "& .MuiDataGrid-cell, & .MuiDataGrid-columnHeader": {
+            py: { xs: 0.5, sm: 1 },
+            px: { xs: 0.5, sm: 1 },
+            fontSize: { xs: 12, sm: 13 },
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            minHeight: { xs: 40, sm: 48 },
+            lineHeight: { xs: '40px', sm: '48px' },
+          },
+          "& .MuiDataGrid-row": {
+            maxHeight: { xs: 44, sm: 52 },
+            minHeight: { xs: 44, sm: 52 },
+          },
+        }}
         slots={{
           noRowsOverlay: () => (
             <Box
@@ -424,6 +440,7 @@ export default function VehiclesAdmin() {
           ),
         }}
       />
+      </Box>
 
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
         <Typography variant="body2">Month:</Typography>

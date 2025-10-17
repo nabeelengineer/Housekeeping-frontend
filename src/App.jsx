@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listNotifications, readNotification } from "./api/endpoints";
 import Login from "./pages/Login.jsx";
@@ -41,6 +42,58 @@ import VehiclesAdmin from "./pages/Admin/Vehicles.jsx";
 import ITAssets from "./pages/IT/Assets.jsx";
 import ITAssignments from "./pages/IT/Assignments.jsx";
 import MyAssets from "./pages/Employee/MyAssets.jsx";
+
+function MobileUserMenu({ role, onLogout, unreadCount }) {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const { pathname } = useLocation();
+  const profileTarget = pathname === "/profile" ? "/" : "/profile";
+  const profileLabel = pathname === "/profile" ? "Dashboard" : "Profile";
+  return (
+    <>
+      <IconButton
+        color="inherit"
+        aria-label="menu"
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        size="large"
+        sx={{ ml: 1 }}
+      >
+        <MenuIcon />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {role === "admin" ? (
+          <MenuItem component={Link} to="/admin" onClick={() => setAnchorEl(null)}>
+            <ListItemText>Admin</ListItemText>
+          </MenuItem>
+        ) : (
+          <>
+            <MenuItem component={Link} to="/buy-sell" onClick={() => setAnchorEl(null)}>
+              <ListItemText>Buy/Sell</ListItemText>
+            </MenuItem>
+            <MenuItem component={Link} to="/vehicle-rental" onClick={() => setAnchorEl(null)}>
+              <ListItemText>Vehicles</ListItemText>
+            </MenuItem>
+            <MenuItem component={Link} to="/my-assets" onClick={() => setAnchorEl(null)}>
+              <ListItemText>My Assets</ListItemText>
+            </MenuItem>
+            <MenuItem component={Link} to={profileTarget} onClick={() => setAnchorEl(null)}>
+              <ListItemText>{profileLabel}</ListItemText>
+            </MenuItem>
+          </>
+        )}
+        <MenuItem onClick={() => { setAnchorEl(null); onLogout(); }}>
+          <ListItemText>Logout</ListItemText>
+        </MenuItem>
+      </Menu>
+    </>
+  );
+}
 
 function NavBar() {
   const { token, role, logout } = useAuth();
@@ -70,269 +123,67 @@ function NavBar() {
         </Typography>
 
         {!token ? (
-          <Stack direction="row" spacing={2}>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/login"
-              sx={{
-                textDecoration: "none",
-                color: "common.white",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.08)",
-                  color: "common.white",
-                },
-                "&:focus, &.Mui-focusVisible": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
-              }}
-              disableRipple
-              disableFocusRipple
-              focusVisibleClassName="Mui-focusVisible-none"
-            >
-              Login
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/signup"
-              sx={{
-                textDecoration: "none",
-                color: "common.white",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.08)",
-                  color: "common.white",
-                },
-                "&:focus, &.Mui-focusVisible": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
-              }}
-              disableRipple
-              disableFocusRipple
-              focusVisibleClassName="Mui-focusVisible-none"
-            >
-              Signup
-            </Button>
-          </Stack>
+          <>
+            <Stack direction="row" spacing={2} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+              <Button color="inherit" component={Link} to="/login">Login</Button>
+              <Button color="inherit" component={Link} to="/signup">Signup</Button>
+            </Stack>
+            <Stack direction="row" spacing={1} sx={{ display: { xs: 'flex', sm: 'none' } }}>
+              <Button color="inherit" component={Link} to="/login" size="small">Login</Button>
+            </Stack>
+          </>
         ) : (
-          <Stack direction="row" spacing={2} alignItems="center">
-            {role === "admin" ? (
-              <Button
-                color="inherit"
-                component={Link}
-                to="/admin"
-                sx={{
-                  textDecoration: "none",
-                  color: "common.white",
-                  "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.08)",
-                    color: "common.white",
-                  },
-                  "&:focus, &.Mui-focusVisible": {
-                    outline: "none",
-                    boxShadow: "none",
-                  },
-                }}
-                disableRipple
-                disableFocusRipple
-              >
-                Admin
-              </Button>
-            ) : (
-              <>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/buy-sell"
-                  sx={{
-                    textDecoration: "none",
-                    color: "common.white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.08)",
-                      color: "common.white",
-                    },
-                    "&:focus, &.Mui-focusVisible": {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Buy/Sell
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/vehicle-rental"
-                  sx={{
-                    textDecoration: "none",
-                    color: "common.white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.08)",
-                      color: "common.white",
-                    },
-                    "&:focus, &.Mui-focusVisible": {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Vehicles
-                </Button>
-                {(role === "it_admin" || role === "admin") && (
-                  <>
-                    <Button
-                      color="inherit"
-                      component={Link}
-                      to="/it/assets"
-                      sx={{
-                        textDecoration: "none",
-                        color: "common.white",
-                        "&:hover": {
-                          bgcolor: "rgba(255,255,255,0.08)",
-                          color: "common.white",
-                        },
-                        "&:focus, &.Mui-focusVisible": {
-                          outline: "none",
-                          boxShadow: "none",
-                        },
-                      }}
-                      disableRipple
-                      disableFocusRipple
-                    >
-                      IT Assets
-                    </Button>
-                    <Button
-                      color="inherit"
-                      component={Link}
-                      to="/it/assignments"
-                      sx={{
-                        textDecoration: "none",
-                        color: "common.white",
-                        "&:hover": {
-                          bgcolor: "rgba(255,255,255,0.08)",
-                          color: "common.white",
-                        },
-                        "&:focus, &.Mui-focusVisible": {
-                          outline: "none",
-                          boxShadow: "none",
-                        },
-                      }}
-                      disableRipple
-                      disableFocusRipple
-                    >
-                      IT Assignments
-                    </Button>
-                  </>
-                )}
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/my-assets"
-                  sx={{
-                    textDecoration: "none",
-                    color: "common.white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.08)",
-                      color: "common.white",
-                    },
-                    "&:focus, &.Mui-focusVisible": {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                  disableRipple
-                  disableFocusRipple
-                >
-                  My Assets
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to={pathname === "/profile" ? "/" : "/profile"}
-                  sx={{
-                    textDecoration: "none",
-                    color: "common.white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.08)",
-                      color: "common.white",
-                    },
-                    "&:focus, &.Mui-focusVisible": {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  {pathname === "/profile" ? "Dashboard" : "Profile"}
-                </Button>
-              </>
-            )}
-            {!!token && (
-              <>
-                <Tooltip title="Notifications">
-                  <IconButton
-                    color="inherit"
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
-                    sx={{
-                      "&:focus": { outline: "none", boxShadow: "none" },
-                    }}
-                  >
-                    <Badge badgeContent={unread.length} color="error">
-                      <NotificationsNoneIcon />
-                    </Badge>
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={() => setAnchorEl(null)}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  transformOrigin={{ vertical: "top", horizontal: "right" }}
-                >
-                  {(notifications || []).slice(0, 10).map((n) => (
-                    <MenuItem
-                      key={n.id}
-                      dense
-                      onClick={() => markRead.mutate(n.id)}
-                      sx={{
-                        opacity: n.read ? 0.65 : 1,
-                        alignItems: "flex-start",
-                        whiteSpace: "normal",
-                        maxWidth: 360,
-                      }}
-                    >
-                      <ListItemText
-                        primary={n.message}
-                        secondary={new Date(n.created_at).toLocaleString()}
-                      />
-                    </MenuItem>
-                  ))}
-                  {(!notifications || notifications.length === 0) && (
-                    <MenuItem disabled> No notifications </MenuItem>
+          <>
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ display: { xs: 'none', sm: 'flex' } }}>
+              {role === "admin" ? (
+                <Button color="inherit" component={Link} to="/admin">Admin</Button>
+              ) : (
+                <>
+                  <Button color="inherit" component={Link} to="/buy-sell">Buy/Sell</Button>
+                  <Button color="inherit" component={Link} to="/vehicle-rental">Vehicles</Button>
+                  {(role === "it_admin" || role === "admin") && (
+                    <>
+                      <Button color="inherit" component={Link} to="/it/assets">IT Assets</Button>
+                      <Button color="inherit" component={Link} to="/it/assignments">IT Assignments</Button>
+                    </>
                   )}
-                </Menu>
-              </>
-            )}
-            <Button
-              color="inherit"
-              onClick={logout}
-              sx={{
-                textDecoration: "none",
-                color: "common.white",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.08)",
-                  color: "common.white",
-                },
-                "&:focus, &.Mui-focusVisible": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
-              }}
-            >
-              Logout
-            </Button>
-          </Stack>
+                  <Button color="inherit" component={Link} to="/my-assets">My Assets</Button>
+                  <Button color="inherit" component={Link} to={pathname === "/profile" ? "/" : "/profile"}>
+                    {pathname === "/profile" ? "Dashboard" : "Profile"}
+                  </Button>
+                </>
+              )}
+              <Tooltip title="Notifications">
+                <IconButton color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)}>
+                  <Badge badgeContent={unread.length} color="error">
+                    <NotificationsNoneIcon />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                {(notifications || []).slice(0, 10).map((n) => (
+                  <MenuItem key={n.id} dense onClick={() => markRead.mutate(n.id)}>
+                    <ListItemText primary={n.message} secondary={new Date(n.created_at).toLocaleString()} />
+                  </MenuItem>
+                ))}
+                {(!notifications || notifications.length === 0) && (
+                  <MenuItem disabled> No notifications </MenuItem>
+                )}
+              </Menu>
+              <Button color="inherit" onClick={logout}>Logout</Button>
+            </Stack>
+
+            {/* Mobile hamburger */}
+            <Box sx={{ display: { xs: 'flex', sm: 'none' } }}>
+              <MobileUserMenu role={role} onLogout={logout} unreadCount={unread.length} />
+            </Box>
+          </>
         )}
       </Toolbar>
     </AppBar>

@@ -22,6 +22,7 @@ import {
   DialogActions,
   TextField,
 } from "@mui/material";
+import { useTheme, useMediaQuery } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 // Custom hook to fetch vehicles (show all to keep unavailable rows visible)
@@ -208,6 +209,8 @@ export default function VehicleList() {
     return rows0;
   }, [data, wheelFilter]);
 
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto" }}>
       {/* Header */}
@@ -237,7 +240,7 @@ export default function VehicleList() {
       {isLoading ? (
         <Typography>Loading...</Typography>
       ) : (
-        <Box sx={{ width: "100%" }}>
+        <Box sx={{ width: "100%", overflowX: "auto" }}>
           <DataGrid
             rows={rows}
             columns={[
@@ -324,6 +327,28 @@ export default function VehicleList() {
             autoHeight
             disableRowSelectionOnClick
             density="compact"
+            columnVisibilityModel={{
+              type: !isXs,
+              occupied: !isXs,
+            }}
+            sx={{
+              "& .MuiDataGrid-cell, & .MuiDataGrid-columnHeader": {
+                py: { xs: 0.5, sm: 1 },
+                px: { xs: 0.5, sm: 1 },
+                fontSize: { xs: 12, sm: 13 },
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                minHeight: { xs: 40, sm: 48 },
+                lineHeight: { xs: "40px", sm: "48px" },
+              },
+              "& .MuiDataGrid-row": {
+                maxHeight: { xs: 44, sm: 52 },
+                minHeight: { xs: 44, sm: 52 },
+              },
+              "& .row-unavailable": { opacity: 0.6 },
+              "& .row-unavailable .MuiDataGrid-cell": { pointerEvents: "none" },
+              '& .MuiDataGrid-cell[data-field="actions"]': { pointerEvents: "auto" },
+            }}
             slots={{
               noRowsOverlay: () => (
                 <Box
@@ -335,7 +360,7 @@ export default function VehicleList() {
                     justifyContent: "center",
                     textAlign: "center",
                     color: "text.secondary",
-                    p: 4,
+                    p: { xs: 2, md: 4 },
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
@@ -352,13 +377,6 @@ export default function VehicleList() {
                 ? "row-unavailable"
                 : ""
             }
-            sx={{
-              "& .row-unavailable": { opacity: 0.6 },
-              "& .row-unavailable .MuiDataGrid-cell": { pointerEvents: "none" },
-              '& .MuiDataGrid-cell[data-field="actions"]': {
-                pointerEvents: "auto",
-              },
-            }}
           />
         </Box>
       )}

@@ -14,6 +14,8 @@ import {
   DialogActions,
   IconButton,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { GrUpdate } from "react-icons/gr";
 import { MdOutlineAssignment } from "react-icons/md";
@@ -43,6 +45,8 @@ export default function AdminDashboard() {
   const [statusId, setStatusId] = useState("");
   const [currentStatus, setCurrentStatus] = useState("pending");
   const [viewDesc, setViewDesc] = useState("");
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
 
   const rows = (data || []).map((r) => {
     const assigned =
@@ -79,7 +83,7 @@ export default function AdminDashboard() {
         width: "100%",
       }}
     >
-      <Grid container spacing={3} mb={3} justifyContent="center">
+      <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} mb={{ xs: 2, md: 3 }} justifyContent="center">
         {[
           {
             key: "pending",
@@ -104,10 +108,10 @@ export default function AdminDashboard() {
             <Card
               sx={{
                 width: "100%",
-                minHeight: 140,
+                minHeight: { xs: 110, sm: 130, md: 140 },
                 borderRadius: 3,
                 boxShadow: "0px 10px 25px rgba(0,0,0,0.06)",
-                p: 2,
+                p: { xs: 1.5, md: 2 },
                 transition: "transform 120ms ease, box-shadow 120ms ease",
                 "&:hover": {
                   transform: "translateY(-2px)",
@@ -115,23 +119,23 @@ export default function AdminDashboard() {
                 },
               }}
             >
-              <CardContent sx={{ p: 2, textAlign: "center" }}>
+              <CardContent sx={{ p: { xs: 1.5, md: 2 }, textAlign: "center" }}>
                 <Typography
-                  variant="subtitle1"
+                  variant={isXs ? "body2" : "subtitle1"}
                   sx={{ fontWeight: 700 }}
                   align="center"
                 >
                   {title}
                 </Typography>
                 <Typography
-                  variant="h4"
+                  variant={isXs ? "h5" : "h4"}
                   sx={{ fontWeight: 800, color, mt: 0.5 }}
                   align="center"
                 >
                   {counts[key] || 0}
                 </Typography>
                 <Typography
-                  variant="body2"
+                  variant={isXs ? "caption" : "body2"}
                   color="text.secondary"
                   sx={{ mt: 0.5 }}
                   align="center"
@@ -147,7 +151,7 @@ export default function AdminDashboard() {
       {isLoading ? (
         <Typography>Loading...</Typography>
       ) : (
-        <Box sx={{ width: "100%" }}>
+        <Box sx={{ width: "100%", overflowX: 'auto' }}>
           <DataGrid
             rows={rows}
             columns={[
@@ -155,22 +159,22 @@ export default function AdminDashboard() {
                 field: "request_id",
                 headerName: "Request ID",
                 flex: 1,
-                minWidth: 150,
+                minWidth: 120,
               },
               {
                 field: "employee_id",
                 headerName: "Employee",
                 flex: 1,
-                minWidth: 100,
+                minWidth: 90,
               },
-              { field: "floor", headerName: "Floor", width: 140 },
-              { field: "unit", headerName: "Unit", width: 120 },
-              { field: "type", headerName: "Type", flex: 0.8, minWidth: 80 },
+              { field: "floor", headerName: "Floor", width: 110 },
+              { field: "unit", headerName: "Unit", width: 100 },
+              { field: "type", headerName: "Type", flex: 0.8, minWidth: 70 },
               {
                 field: "description",
                 headerName: "About",
                 flex: 1.6,
-                minWidth: 220,
+                minWidth: 200,
                 renderCell: (params) => {
                   const text = params.value || "-";
                   return (
@@ -203,19 +207,19 @@ export default function AdminDashboard() {
                 field: "status",
                 headerName: "Status",
                 flex: 0.9,
-                minWidth: 100,
+                minWidth: 90,
               },
               {
                 field: "assigned_display",
                 headerName: "Assigned To",
                 flex: 1,
-                minWidth: 120,
+                minWidth: 110,
               },
               {
                 field: "closed_display",
                 headerName: "Closed Date",
                 flex: 1,
-                minWidth: 160,
+                minWidth: 140,
               },
               {
                 field: "actions",
@@ -255,6 +259,28 @@ export default function AdminDashboard() {
             autoHeight
             disableRowSelectionOnClick
             density="compact"
+            columnVisibilityModel={{
+              // Hide less-important columns on very small screens
+              floor: !isXs,
+              unit: !isXs,
+              assigned_display: !isXs,
+              closed_display: !isXs,
+            }}
+            sx={{
+              "& .MuiDataGrid-cell, & .MuiDataGrid-columnHeader": {
+                py: { xs: 0.5, sm: 1 },
+                px: { xs: 0.5, sm: 1 },
+                fontSize: { xs: 12, sm: 13 },
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                minHeight: { xs: 40, sm: 48 },
+                lineHeight: { xs: "40px", sm: "48px" },
+              },
+              "& .MuiDataGrid-row": {
+                maxHeight: { xs: 44, sm: 52 },
+                minHeight: { xs: 44, sm: 52 },
+              },
+            }}
             slots={{
               noRowsOverlay: () => (
                 <Box
@@ -266,7 +292,7 @@ export default function AdminDashboard() {
                     justifyContent: "center",
                     textAlign: "center",
                     color: "text.secondary",
-                    p: 4,
+                    p: { xs: 2, md: 4 },
                   }}
                 >
                   <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
