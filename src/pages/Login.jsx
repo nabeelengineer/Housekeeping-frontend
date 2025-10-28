@@ -13,7 +13,10 @@ import {
   Grid,
   Checkbox,
   FormControlLabel,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { login as loginApi } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,6 +37,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [remember, setRemember] = React.useState(true);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const onSubmit = async (values) => {
     try {
@@ -147,13 +151,25 @@ export default function Login() {
               />
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 {...register("password", {
                   required: "Password is required",
                 })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <FormControlLabel

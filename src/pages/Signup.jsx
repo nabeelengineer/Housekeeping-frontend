@@ -11,7 +11,9 @@ import {
   TextField,
   Typography,
   Grid,
+  Link as MuiLink,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import { signup as signupApi, listDepartments } from "../api/endpoints";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -202,10 +204,34 @@ export default function Signup() {
                   variant="contained"
                   disabled={isSubmitting}
                   fullWidth
-                  sx={{ boxShadow: "none" }}
+                  sx={{
+                    mt: 2,
+                    py: 1.5,
+                    fontSize: "1rem",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: 2,
+                  }}
                 >
-                  Create account
+                  Sign up
                 </Button>
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                  Already have an account?{" "}
+                  <MuiLink
+                    component={Link}
+                    to="/login"
+                    sx={{
+                      color: "primary.main",
+                      textDecoration: "none",
+                      fontWeight: 600,
+                      '&:hover': {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Login
+                  </MuiLink>
+                </Typography>
               </Stack>
             </Box>
           </Paper>

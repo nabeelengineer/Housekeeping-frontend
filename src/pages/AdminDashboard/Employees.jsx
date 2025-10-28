@@ -6,6 +6,7 @@ import {
   setEmployeeRole,
   updateEmployee,
   deleteEmployee,
+  listDepartments,
 } from "../../api/endpoints";
 import {
   Box,
@@ -21,26 +22,64 @@ import {
   DialogActions,
   IconButton,
 } from "@mui/material";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { RiEditLine } from "react-icons/ri";
 import { DataGrid } from "@mui/x-data-grid";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import { useAuth } from "../../auth/AuthContext";
 import Tooltip from "@mui/material/Tooltip";
 
 export default function Employees() {
   const qc = useQueryClient();
-  const {
-    data = [],
-    isLoading,
-    error,
-  } = useQuery({ queryKey: ["employees"], queryFn: listEmployees });
-  const { register, handleSubmit, reset } = useForm();
   const { enqueueSnackbar } = useSnackbar();
   const { employeeId } = useAuth();
+  
+  // State declarations
   const [open, setOpen] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const [editId, setEditId] = React.useState("");
+  const [confirmId, setConfirmId] = React.useState("");
+  
+  // Queries
+  const { data = [], isLoading, error } = useQuery({ 
+    queryKey: ["employees"], 
+    queryFn: listEmployees 
+  });
+  
+  const { data: departments = [] } = useQuery({
+    queryKey: ["departments"],
+    queryFn: listDepartments,
+  });
+
+  // Form setup
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      employee_id: "",
+      name: "",
+      email: "",
+      phone_no: "",
+      department_id: "",
+      password: "",
+      role: "employee"
+    }
+  });
+
+  // Reset form when dialog is opened/closed
+  React.useEffect(() => {
+    if (open) {
+      reset({
+        employee_id: "",
+        name: "",
+        email: "",
+        phone_no: "",
+        department_id: "",
+        password: "",
+        role: "employee"
+      });
+    }
+  }, [open, reset]);
+  
   const [editValues, setEditValues] = React.useState({
     name: "",
     email: "",
@@ -48,9 +87,15 @@ export default function Employees() {
     department_id: "",
     manager_id: "",
   });
-  const [confirmId, setConfirmId] = React.useState("");
   const createMut = useMutation({
-    mutationFn: createEmployee,
+    mutationFn: (data) => {
+      const formData = {
+        ...data,
+        dept_id: data.department_id,
+      };
+      delete formData.department_id;
+      return createEmployee(formData);
+    },
     onSuccess: () => {
       enqueueSnackbar("Employee created", { variant: "success" });
       qc.invalidateQueries({ queryKey: ["employees"] });
@@ -64,8 +109,14 @@ export default function Employees() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ employee_id, values }) =>
-      updateEmployee(employee_id, values),
+    mutationFn: ({ employee_id, values }) => {
+      const formData = {
+        ...values,
+        dept_id: values.department_id,
+      };
+      delete formData.department_id;
+      return updateEmployee(employee_id, formData);
+    },
     onSuccess: () => {
       enqueueSnackbar("Employee updated", { variant: "success" });
       qc.invalidateQueries({ queryKey: ["employees"] });
@@ -194,57 +245,165 @@ export default function Employees() {
                 gap: 2,
               }}
             >
-              <TextField
-                fullWidth
-                size="small"
-                label="Employee ID"
-                {...register("employee_id", { required: true })}
+              <Controller
+                name="employee_id"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    label="Employee ID"
+                  />
+                )}
               />
-              <TextField
-                fullWidth
-                size="small"
-                label="Name"
-                {...register("name", { required: true })}
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    label="Name"
+                  />
+                )}
               />
-              <TextField
-                fullWidth
-                size="small"
-                label="Phone"
-                {...register("phone_no", { required: true })}
+              <Controller
+                name="phone_no"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    label="Phone"
+                  />
+                )}
               />
-              <TextField
-                fullWidth
-                size="small"
-                label="Email"
-                type="email"
-                {...register("email", { required: true })}
+              <Controller
+                name="email"
+                control={control}
+                rules={{ 
+                  required: true,
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address"
+                  }
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    label="Email"
+                    type="email"
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
               />
-              <TextField
-                fullWidth
-                size="small"
-                label="Password"
-                type="password"
-                {...register("password", { required: true })}
+              <Controller
+                name="password"
+                control={control}
+                rules={{ 
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters"
+                  }
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    error={!!error}
+                    helperText={error?.message}
+                    InputProps={{
+                      endAdornment: (
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                        >
+                          {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                        </IconButton>
+                      ),
+                    }}
+                  />
+                )}
               />
-              <TextField
-                fullWidth
-                size="small"
-                label="Department ID"
-                {...register("department_id", { required: true })}
+              <Controller
+                name="department_id"
+                control={control}
+                rules={{ required: "Department is required" }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => {
+                  const selectedDept = departments.find(d => d.dept_id === value);
+                  
+                  return (
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="Department"
+                      value={value || ""}
+                      onChange={(e) => {
+                        console.log('Department selected:', e.target.value);
+                        onChange(e.target.value);
+                      }}
+                      error={!!error}
+                      helperText={error?.message}
+                      SelectProps={{
+                        displayEmpty: false,
+                        renderValue: () => {
+                          if (!value || !selectedDept) return '';
+                          return selectedDept.dept_name;
+                        },
+                        MenuProps: {
+                          PaperProps: {
+                            style: {
+                              maxHeight: 250,
+                            },
+                          },
+                        },
+                      }}
+                      inputProps={{ 'aria-label': 'Select department' }}
+                    >
+                      {departments.map((dept) => (
+                        <MenuItem key={dept.dept_id} value={dept.dept_id}>
+                          {dept.dept_name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  );
+                }}
               />
-              <TextField
-                fullWidth
-                select
-                size="small"
-                label="Role"
+              <Controller
+                name="role"
+                control={control}
                 defaultValue="employee"
-                {...register("role", { required: true })}
-              >
-                <MenuItem value="employee">employee</MenuItem>
-                <MenuItem value="staff">staff</MenuItem>
-                <MenuItem value="it_admin">it_admin</MenuItem>
-                <MenuItem value="admin">admin</MenuItem>
-              </TextField>
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    select
+                    size="small"
+                    label="Role"
+                  >
+                    <MenuItem value="employee">employee</MenuItem>
+                    <MenuItem value="staff">staff</MenuItem>
+                    <MenuItem value="it_admin">it_admin</MenuItem>
+                    {/* <MenuItem value="admin">admin</MenuItem> */}
+                  </TextField>
+                )}
+              />
             </Box>
           </Box>
         </DialogContent>
