@@ -9,8 +9,16 @@ const baseURL = import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? 'http://localhost:4000' : '');
 
 const api = axios.create({
-  baseURL: `${baseURL}${baseURL ? '' : '/'}api`,
+  baseURL: `${baseURL}/api`,
   withCredentials: true,
+  timeout: 10000, // 10 seconds timeout
+  timeoutErrorMessage: 'Request timed out. Please try again.',
+  headers: {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  }
 });
 
 console.log('Final API baseURL:', api.defaults.baseURL);
