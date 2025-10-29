@@ -4,21 +4,16 @@ import axios from 'axios';
 console.log('Environment:', import.meta.env.MODE);
 console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
 
-// Use VITE_API_BASE_URL if provided, otherwise use relative path in production
-const baseURL = import.meta.env.VITE_API_BASE_URL || 
-  (import.meta.env.DEV ? 'http://localhost:4000' : '');
+// In production, use relative URLs (handled by Nginx proxy)
+// In development, use the full URL
+const isProduction = import.meta.env.PROD;
+const baseURL = isProduction ? '' : 'http://localhost:4000';
 
 const api = axios.create({
-  baseURL: `${baseURL}/api`,
+  baseURL: isProduction ? '/api' : 'http://localhost:4000/api',
   withCredentials: true,
-  timeout: 10000, // 10 seconds timeout
-  timeoutErrorMessage: 'Request timed out. Please try again.',
-  headers: {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  }
+  timeout: 30000, // 30 seconds timeout
+  timeoutErrorMessage: 'Request timed out. Please try again.'
 });
 
 console.log('Final API baseURL:', api.defaults.baseURL);
