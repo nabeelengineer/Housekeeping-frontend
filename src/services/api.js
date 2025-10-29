@@ -1,8 +1,20 @@
 // Helper function to handle API requests
 const apiRequest = async (endpoint, options = {}) => {
-  // Use relative URL for API requests (handled by nginx proxy)
-  const basePath = endpoint.startsWith('/api') ? '' : '/api';
-  const url = endpoint.startsWith('http') ? endpoint : `${basePath}${endpoint}`;
+  // Use Vite's environment variable for the base URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  
+  // Construct the full URL
+  let url;
+  if (endpoint.startsWith('http')) {
+    url = endpoint;
+  } else if (import.meta.env.PROD) {
+    // In production, use relative URLs with /api prefix
+    const basePath = endpoint.startsWith('/api') ? '' : '/api';
+    url = `${basePath}${endpoint}`;
+  } else {
+    // In development, use the full URL from VITE_API_BASE_URL
+    url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  }
   
   const defaultHeaders = {
     'Content-Type': 'application/json',

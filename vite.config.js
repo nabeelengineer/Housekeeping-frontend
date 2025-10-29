@@ -15,6 +15,9 @@ export default defineConfig({
   define: {
     'import.meta.env.PROD': JSON.stringify(isProduction),
     'import.meta.env.DEV': JSON.stringify(!isProduction),
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+      isProduction ? '' : 'http://localhost:4000'
+    ),
   },
   server: {
     port: 5173,
