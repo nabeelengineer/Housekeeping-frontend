@@ -36,7 +36,23 @@ export const listProducts = (params) => api.get('/market/products', { params }).
 export const getProduct = (id) => api.get(`/market/products/${id}`).then(r => r.data);
 export const createProduct = (formData) => api.post('/market/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data);
 export const markProductSold = (id) => api.patch(`/market/products/${id}/mark-sold`).then(r => r.data);
-export const deleteProduct = (id) => api.delete(`/market/products/${id}`).then(r => r.data);
+export const deleteProduct = (id) => {
+  console.log('Deleting product with ID:', id);
+  return api.delete(`/market/products/${id}`)
+    .then(response => {
+      console.log('Delete successful:', response.data);
+      return response.data;
+    })
+    .catch(error => {
+      console.error('Error deleting product:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      });
+      throw error; // Re-throw to allow component to handle the error
+    });
+};
 export const updateProduct = (id, payload) => api.patch(`/market/products/${id}`, payload).then(r => r.data);
 export const expressInterest = (id) => api.post(`/market/products/${id}/interest`).then(r => r.data);
 export const listComments = (id) => api.get(`/market/products/${id}/comments`).then(r => r.data);

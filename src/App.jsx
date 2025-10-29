@@ -67,29 +67,30 @@ function MobileUserMenu({ role, onLogout, unreadCount }) {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        {role === "admin" ? (
-          <MenuItem component={Link} to="/admin" onClick={() => setAnchorEl(null)}>
+        {role === "admin" ? [
+          <MenuItem key="admin" component={Link} to="/admin" onClick={() => setAnchorEl(null)}>
             <ListItemText>Admin</ListItemText>
+          </MenuItem>,
+          <MenuItem key="admin-logout" onClick={() => { setAnchorEl(null); onLogout(); }}>
+            <ListItemText>Logout</ListItemText>
           </MenuItem>
-        ) : (
-          <>
-            <MenuItem component={Link} to="/buy-sell" onClick={() => setAnchorEl(null)}>
-              <ListItemText>Buy/Sell</ListItemText>
-            </MenuItem>
-            <MenuItem component={Link} to="/vehicle-rental" onClick={() => setAnchorEl(null)}>
-              <ListItemText>Vehicles</ListItemText>
-            </MenuItem>
-            <MenuItem component={Link} to="/my-assets" onClick={() => setAnchorEl(null)}>
-              <ListItemText>My Assets</ListItemText>
-            </MenuItem>
-            <MenuItem component={Link} to={profileTarget} onClick={() => setAnchorEl(null)}>
-              <ListItemText>{profileLabel}</ListItemText>
-            </MenuItem>
-          </>
-        )}
-        <MenuItem onClick={() => { setAnchorEl(null); onLogout(); }}>
-          <ListItemText>Logout</ListItemText>
-        </MenuItem>
+        ] : [
+          <MenuItem key="buy-sell" component={Link} to="/buy-sell" onClick={() => setAnchorEl(null)}>
+            <ListItemText>Buy/Sell</ListItemText>
+          </MenuItem>,
+          <MenuItem key="vehicles" component={Link} to="/vehicle-rental" onClick={() => setAnchorEl(null)}>
+            <ListItemText>Vehicles</ListItemText>
+          </MenuItem>,
+          <MenuItem key="assets" component={Link} to="/my-assets" onClick={() => setAnchorEl(null)}>
+            <ListItemText>My Assets</ListItemText>
+          </MenuItem>,
+          <MenuItem key="profile" component={Link} to={profileTarget} onClick={() => setAnchorEl(null)}>
+            <ListItemText>{profileLabel}</ListItemText>
+          </MenuItem>,
+          <MenuItem key="logout" onClick={() => { setAnchorEl(null); onLogout(); }}>
+            <ListItemText>Logout</ListItemText>
+          </MenuItem>
+        ]}
       </Menu>
     </>
   );

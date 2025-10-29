@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "notistack";
+import { deleteProduct } from "../../api/endpoints";
 import {
   Box,
   Grid,
@@ -40,12 +42,32 @@ function useComments(id) {
   });
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
-const toImg = (u) => (u?.startsWith("/") ? `${API_BASE}${u}` : u);
+const toImg = (u) => {
+  if (!u) return '';
+  
+  // If it's already a full URL or blob URL, return as is
+  if (u.startsWith('http') || u.startsWith('blob:')) {
+    return u;
+  }
+  
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  
+  // If it's a full path already, just ensure it has the correct base URL
+  if (u.startsWith('/') && !u.startsWith('//')) {
+    // Remove any existing base URL to prevent duplication
+    const cleanPath = u.replace(/^https?:\/\/[^/]+/, '');
+    return `${baseUrl}${cleanPath}`;
+  }
+  
+  // If it's just a filename, prepend the full path
+  return `${baseUrl}/uploads/market/${u}`;
+};
 
 export default function ProductDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { employeeId } = useAuth();
   const { data: product, isLoading } = useProduct(id);
   const { data: comments = [], refetch: refetchComments } = useComments(id);
@@ -108,11 +130,41 @@ export default function ProductDetail() {
 
   const deleteMut = useMutation({
     mutationFn: () => deleteProduct(id),
-    onSuccess: () => {
-      // go back to list
-      window.location.href = "/buy-sell";
+    onSuccess: async () => {
+      try {
+        // Invalidate and refetch products list and current product
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ['products'] }),
+          qc.invalidateQueries({ queryKey: ['product', id] })
+        ]);
+        
+        // Show success message and navigate back
+        enqueueSnackbar('Product deleted successfully', { variant: 'success' });
+        navigate('/buy-sell');
+      } catch (error) {
+        console.error('Error in delete success handler:', error);
+        enqueueSnackbar('Product deleted, but there was an issue with navigation', { variant: 'warning' });
+        navigate('/buy-sell'); // Still navigate even if there's an error
+      }
+    },
+    onError: (error) => {
+      console.error('Error deleting product:', error);
+      enqueueSnackbar(
+        error.response?.data?.error || 'Failed to delete product', 
+        { variant: 'error' }
+      );
     },
   });
+
+  // Add a confirmation dialog for delete
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const handleDeleteClick = () => {
+    setDeleteConfirmOpen(true);
+  };
+  const handleDeleteConfirm = () => {
+    setDeleteConfirmOpen(false);
+    deleteMut.mutate();
+  };
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (!product) return <Typography>Not found</Typography>;
@@ -320,11 +372,10 @@ export default function ProductDetail() {
             <Button
               variant="contained"
               color="error"
-              onClick={() => {
-                if (confirm("Delete this product?")) deleteMut.mutate();
-              }}
+              onClick={handleDeleteClick}
+              disabled={deleteMut.isPending}
             >
-              Delete
+              {deleteMut.isPending ? "Deleting..." : "Delete"}
             </Button>
           </>
         ) : (
@@ -457,6 +508,33 @@ export default function ProductDetail() {
             disabled={updateMut.isPending}
           >
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Delete Product</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this product? This action cannot be
+            undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteConfirm}
+            disabled={deleteMut.isPending}
+          >
+            {deleteMut.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
