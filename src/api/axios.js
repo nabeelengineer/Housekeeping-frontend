@@ -1,10 +1,13 @@
 import axios from 'axios';
 
-// Get the base URL from environment variables
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+// Use relative path in production, localhost in development
+const baseURL = import.meta.env.DEV
+  ? 'http://localhost:4000'
+  : '';
 
 const api = axios.create({
-  baseURL: `${baseURL}/api`, // Ensure /api is always included in the base URL
+  baseURL: `${baseURL}/api`,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
