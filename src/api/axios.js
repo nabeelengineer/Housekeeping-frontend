@@ -1,14 +1,19 @@
 import axios from 'axios';
 
-// Use relative path in production, localhost in development
-const baseURL = import.meta.env.DEV
-  ? 'http://localhost:4000'
-  : '';
+// Log environment and API URL for debugging
+console.log('Environment:', import.meta.env.MODE);
+console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+
+// Use VITE_API_BASE_URL if provided, otherwise use relative path in production
+const baseURL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.DEV ? 'http://localhost:4000' : '');
 
 const api = axios.create({
-  baseURL: `${baseURL}/api`,
+  baseURL: `${baseURL}${baseURL ? '' : '/'}api`,
   withCredentials: true,
 });
+
+console.log('Final API baseURL:', api.defaults.baseURL);
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
