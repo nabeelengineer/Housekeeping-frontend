@@ -1,19 +1,20 @@
 // Helper function to handle API requests
 const apiRequest = async (endpoint, options = {}) => {
-  // Use Vite's environment variable for the base URL
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  // In production, always use relative URLs that will be handled by nginx
+  // In development, use the full URL with localhost
+  const isProduction = import.meta.env.PROD;
   
-  // Construct the full URL
+  // Remove any leading slashes to prevent double slashes
+  const cleanEndpoint = endpoint.replace(/^\/+/, '');
+  
+  // Construct the URL
   let url;
-  if (endpoint.startsWith('http')) {
-    url = endpoint;
-  } else if (import.meta.env.PROD) {
+  if (isProduction) {
     // In production, use relative URLs with /api prefix
-    const basePath = endpoint.startsWith('/api') ? '' : '/api';
-    url = `${basePath}${endpoint}`;
+    url = `/api/${cleanEndpoint}`;
   } else {
-    // In development, use the full URL from VITE_API_BASE_URL
-    url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+    // In development, use the full URL with localhost
+    url = `http://localhost:4000/${cleanEndpoint}`;
   }
   
   const defaultHeaders = {

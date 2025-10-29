@@ -12,12 +12,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // No need to define VITE_API_BASE_URL here as we're using relative URLs in production
   define: {
     'import.meta.env.PROD': JSON.stringify(isProduction),
     'import.meta.env.DEV': JSON.stringify(!isProduction),
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
-      isProduction ? '' : 'http://localhost:4000'
-    ),
   },
   server: {
     port: 5173,
