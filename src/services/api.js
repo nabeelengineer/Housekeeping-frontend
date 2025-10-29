@@ -1,8 +1,8 @@
-import { API_BASE_URL } from '../utils/config';
-
 // Helper function to handle API requests
 const apiRequest = async (endpoint, options = {}) => {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  // Use relative URL for API requests (handled by nginx proxy)
+  const basePath = endpoint.startsWith('/api') ? '' : '/api';
+  const url = endpoint.startsWith('http') ? endpoint : `${basePath}${endpoint}`;
   
   const defaultHeaders = {
     'Content-Type': 'application/json',

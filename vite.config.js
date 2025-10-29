@@ -2,14 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// Detect environment
+// Environment detection
 const isProduction = process.env.NODE_ENV === 'production';
-const backendUrl =
-  process.env.VITE_API_BASE_URL && process.env.VITE_API_BASE_URL !== 'auto'
-    ? process.env.VITE_API_BASE_URL
-    : isProduction
-    ? '' // In production, the frontend & backend are usually served from same domain
-    : 'http://localhost:4000'; // In local, backend runs on port 4000
 
 export default defineConfig({
   plugins: [react()],
@@ -19,7 +13,8 @@ export default defineConfig({
     },
   },
   define: {
-    'import.meta.env.VITE_BACKEND_URL': JSON.stringify(backendUrl),
+    'import.meta.env.PROD': JSON.stringify(isProduction),
+    'import.meta.env.DEV': JSON.stringify(!isProduction),
   },
   server: {
     port: 5173,
