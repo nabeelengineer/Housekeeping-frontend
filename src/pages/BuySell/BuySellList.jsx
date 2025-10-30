@@ -31,15 +31,15 @@ function useProducts(params) {
 const toImg = (u) => {
   if (!u) return '';
   
-  // If it's already a full URL or blob URL, return as is
+  // If it's already a full URL, return as is
   if (u.startsWith('http') || u.startsWith('blob:')) {
     return u;
   }
   
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
   
-  // If it's a full path already, just ensure it has the correct base URL
-  if (u.startsWith('/') && !u.startsWith('//')) {
+  // If it starts with /uploads/, ensure it has the base URL
+  if (u.startsWith('/uploads/')) {
     // Remove any existing base URL to prevent duplication
     const cleanPath = u.replace(/^https?:\/\/[^/]+/, '');
     return `${baseUrl}${cleanPath}`;

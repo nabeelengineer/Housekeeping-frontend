@@ -42,33 +42,14 @@ function useComments(id) {
   });
 }
 
-const toImg = (u) => {
-  if (!u) return '';
-  
-  // If it's already a full URL or blob URL, return as is
-  if (u.startsWith('http') || u.startsWith('blob:')) {
-    return u;
-  }
-  
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-  
-  // If it's a full path already, just ensure it has the correct base URL
-  if (u.startsWith('/') && !u.startsWith('//')) {
-    // Remove any existing base URL to prevent duplication
-    const cleanPath = u.replace(/^https?:\/\/[^/]+/, '');
-    return `${baseUrl}${cleanPath}`;
-  }
-  
-  // If it's just a filename, prepend the full path
-  return `${baseUrl}/uploads/market/${u}`;
-};
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+const toImg = (u) => (u?.startsWith("/") ? `${API_BASE}${u}` : u);
 
 export default function ProductDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
-  const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
   const { employeeId } = useAuth();
+  const navigate = useNavigate();
   const { data: product, isLoading } = useProduct(id);
   const { data: comments = [], refetch: refetchComments } = useComments(id);
   const { data: myInterest } = useQuery({
@@ -128,24 +109,25 @@ export default function ProductDetail() {
     },
   });
 
+  const { enqueueSnackbar } = useSnackbar();
+  const qc = useQueryClient();
+
   const deleteMut = useMutation({
     mutationFn: () => deleteProduct(id),
     onSuccess: async () => {
-      try {
-        // Invalidate and refetch products list and current product
-        await Promise.all([
-          qc.invalidateQueries({ queryKey: ['products'] }),
-          qc.invalidateQueries({ queryKey: ['product', id] })
-        ]);
-        
-        // Show success message and navigate back
-        enqueueSnackbar('Product deleted successfully', { variant: 'success' });
+      // Invalidate and refetch products list and current product
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ['products'] }),
+        qc.invalidateQueries({ queryKey: ['product', id] })
+      ]);
+      
+      // Show success message
+      enqueueSnackbar('Product deleted successfully', { variant: 'success' });
+      
+      // Navigate back to the product list after a short delay
+      setTimeout(() => {
         navigate('/buy-sell');
-      } catch (error) {
-        console.error('Error in delete success handler:', error);
-        enqueueSnackbar('Product deleted, but there was an issue with navigation', { variant: 'warning' });
-        navigate('/buy-sell'); // Still navigate even if there's an error
-      }
+      }, 500);
     },
     onError: (error) => {
       console.error('Error deleting product:', error);
