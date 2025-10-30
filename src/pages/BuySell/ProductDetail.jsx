@@ -110,7 +110,6 @@ export default function ProductDetail() {
   });
 
   const { enqueueSnackbar } = useSnackbar();
-  const qc = useQueryClient();
 
   const deleteMut = useMutation({
     mutationFn: () => deleteProduct(id),
