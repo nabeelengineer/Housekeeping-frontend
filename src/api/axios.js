@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-// In production, we'll use relative URLs that will be handled by Nginx
-// In development, we'll use the full URL to the backend
-const baseURL = import.meta.env.DEV 
-  ? 'http://localhost:4000/api' 
-  : '/api';
+// Determine the base URL based on environment
+let baseURL;
+if (import.meta.env.MODE === 'production') {
+  // In production, use relative URL (handled by Nginx)
+  baseURL = '/api';
+} else {
+  // In development, use the full URL to the backend
+  baseURL = 'http://localhost:4000/api';
+}
 
 // Log environment and API URL for debugging
 console.log('Environment:', import.meta.env.MODE);
@@ -21,6 +25,44 @@ const api = axios.create({
     'Accept': 'application/json'
   }
 });
+
+// Add request interceptor to log all requests
+api.interceptors.request.use(
+  (config) => {
+    console.log('Request:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data
+    });
+    return config;
+  },
+  (error) => {
+    console.error('Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to log all responses
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
+    return response;
+  },
+  (error) => {
+    console.error('Response Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
 
 console.log('Final API baseURL:', api.defaults.baseURL);
 
