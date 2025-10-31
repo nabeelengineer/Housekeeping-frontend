@@ -1,6 +1,6 @@
 const apiRequest = async (endpoint, options = {}) => {
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
-  const url = `/api/${cleanEndpoint}`; // production and dev both
+  const url = `/api/${cleanEndpoint}`;
 
   const defaultHeaders = {
     'Content-Type': 'application/json',
