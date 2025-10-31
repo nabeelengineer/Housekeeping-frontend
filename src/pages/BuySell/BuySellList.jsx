@@ -36,30 +36,20 @@ const toImg = (u) => {
     return u;
   }
   
-  // Handle different path formats
-  let imagePath = u;
-  
-  // If it's just a filename, prepend the market path
-  if (!u.startsWith('/') && !u.startsWith('uploads/')) {
-    imagePath = `/uploads/market/${u}`;
-  } 
-  // If it's a relative path without the leading slash
-  else if (u.startsWith('uploads/')) {
-    imagePath = `/${u}`;
-  }
-  
-  // In development, prepend the API base URL if it's not already a full URL
-  if (!import.meta.env.PROD && !imagePath.startsWith('http')) {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-    // Ensure we don't duplicate the base path
-    if (!imagePath.startsWith(baseUrl)) {
-      // Remove any leading slashes to prevent double slashes
-      const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-      return `${baseUrl.replace(/\/$/, '')}/${cleanPath}`;
+  // In production, use relative paths (handled by Nginx)
+  if (import.meta.env.PROD) {
+    if (u.startsWith('/uploads/')) {
+      return u;
     }
+    return `/uploads/market/${u}`;
   }
   
-  return imagePath;
+  // In development, use the full URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  if (u.startsWith('/uploads/')) {
+    return `${baseUrl}${u}`;
+  }
+  return `${baseUrl}/uploads/market/${u}`;
 };
 
 export default function BuySellList() {
