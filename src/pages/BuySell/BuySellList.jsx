@@ -36,16 +36,19 @@ const toImg = (u) => {
     return u;
   }
   
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-  
-  // If it starts with /uploads/, ensure it has the base URL
-  if (u.startsWith('/uploads/')) {
-    // Remove any existing base URL to prevent duplication
-    const cleanPath = u.replace(/^https?:\/\/[^/]+/, '');
-    return `${baseUrl}${cleanPath}`;
+  // In production, use relative paths (handled by Nginx)
+  if (import.meta.env.PROD) {
+    if (u.startsWith('/uploads/')) {
+      return u;
+    }
+    return `/uploads/market/${u}`;
   }
   
-  // If it's just a filename, prepend the full path
+  // In development, use the full URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  if (u.startsWith('/uploads/')) {
+    return `${baseUrl}${u}`;
+  }
   return `${baseUrl}/uploads/market/${u}`;
 };
 

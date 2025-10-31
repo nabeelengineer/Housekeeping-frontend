@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       // Handle API requests - forward to backend
       '^/api': {
-        target: 'http://localhost:4000',
+        target: 'http://backend:4000',
         changeOrigin: true,
         secure: false,
         // Remove the duplicate /api prefix if it exists in the request
@@ -23,15 +23,14 @@ export default defineConfig({
       },
       // Handle static file requests (uploads)
       '^/uploads': {
-        target: 'http://localhost:4000',
+        target: 'http://backend:4000',
         changeOrigin: true,
         secure: false,
       },
     },
   },
-  // Set the base URL for static assets
+
   base: '/',
-  // Configure build settings
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -41,16 +40,16 @@ export default defineConfig({
   define: {
     'process.env': {}
   },
-  // Configure HMR (Hot Module Replacement)
+
   hmr: {
     overlay: true,
   },
-  // Configure static file serving
+
   preview: {
     port: 5173,
     strictPort: true,
   },
-  // Configure CSS
+
   css: {
     devSourcemap: true,
   },

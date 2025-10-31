@@ -25,7 +25,24 @@ export default function VehicleRentalLogs() {
   const params = {};
   const { data = [], isLoading } = useLogs(params);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  
+  const getFullUrl = (url) => {
+    if (!url) return '';
+    
+    // If it's already a full URL, return as is
+    if (url.startsWith('http') || url.startsWith('blob:')) {
+      return url;
+    }
+    
+    // In production, use relative paths (handled by Nginx)
+    if (import.meta.env.PROD) {
+      return url.startsWith('/') ? url : `/${url}`;
+    }
+    
+    // In development, use the full URL
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+  };
 
   const labelForVehicle = (v) => {
     const t = String(v?.type || "").trim();
@@ -253,11 +270,7 @@ export default function VehicleRentalLogs() {
           {previewUrl && (
             <Box sx={{ display: "flex", justifyContent: "center", p: 1 }}>
               <img
-                src={
-                  /^https?:\/\//i.test(previewUrl)
-                    ? previewUrl
-                    : `${API_BASE}${previewUrl}`
-                }
+                src={getFullUrl(previewUrl)}
                 alt="meter"
                 style={{ maxWidth: "100%", maxHeight: 500 }}
                 onError={(e) => {

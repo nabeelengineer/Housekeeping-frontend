@@ -42,8 +42,29 @@ function useComments(id) {
   });
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
-const toImg = (u) => (u?.startsWith("/") ? `${API_BASE}${u}` : u);
+const toImg = (u) => {
+  if (!u) return '';
+  
+  // If it's already a full URL, return as is
+  if (u.startsWith('http') || u.startsWith('blob:')) {
+    return u;
+  }
+  
+  // In production, use relative paths (handled by Nginx)
+  if (import.meta.env.PROD) {
+    if (u.startsWith('/uploads/')) {
+      return u;
+    }
+    return `/uploads/market/${u}`;
+  }
+  
+  // In development, use the full URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  if (u.startsWith('/uploads/')) {
+    return `${baseUrl}${u}`;
+  }
+  return `${baseUrl}/uploads/market/${u}`;
+};
 
 export default function ProductDetail() {
   const { id } = useParams();
