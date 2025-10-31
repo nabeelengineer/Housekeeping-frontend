@@ -89,12 +89,7 @@ export default function Employees() {
   });
   const createMut = useMutation({
     mutationFn: (data) => {
-      const formData = {
-        ...data,
-        dept_id: data.department_id,
-      };
-      delete formData.department_id;
-      return createEmployee(formData);
+      return createEmployee(data);
     },
     onSuccess: () => {
       enqueueSnackbar("Employee created", { variant: "success" });
@@ -110,12 +105,7 @@ export default function Employees() {
 
   const updateMut = useMutation({
     mutationFn: ({ employee_id, values }) => {
-      const formData = {
-        ...values,
-        dept_id: values.department_id,
-      };
-      delete formData.department_id;
-      return updateEmployee(employee_id, formData);
+      return updateEmployee(employee_id, values);
     },
     onSuccess: () => {
       enqueueSnackbar("Employee updated", { variant: "success" });
